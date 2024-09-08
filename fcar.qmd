@@ -1,0 +1,315 @@
+---
+title: "fcaR"
+---
+
+```{r}
+library(fcaR)
+library(lattice)
+library(readr)
+library(dplyr)
+
+datatrain<-read.csv("dataAeda.csv", sep=",")
+```
+
+## Data preparation
+
+### Creating objects
+
+```{r}
+# 1. Create row names using row numbers
+row_names <- paste0("user", 1:nrow(datatrain))
+# 2. Set row names to the dataframe
+rownames(datatrain) <- row_names
+```
+
+### Preparing data set to creat formal concept - fuzzy relationship matrix
+
+A continuación, decretamos los variables que tienne valores dentro de (0,1):
+
+```{r}
+# Discretize 
+datatrain$nums.length.username_binned <- cut(datatrain$nums.length.username, breaks = seq(0, 1, by = 0.5), labels = c("Low", "High"), include.lowest = TRUE)
+datatrain$nums.length.username_binned <- ifelse(datatrain$nums.length.username_binned == "Low", 0, 1)
+
+
+datatrain$nums.length.fullname_binned <- cut(datatrain$nums.length.fullname, breaks = seq(0, 1, by = 0.5), labels = c("Low", "High"), include.lowest = TRUE)
+datatrain$nums.length.fullname_binned <- ifelse(datatrain$nums.length.fullname_binned == "Low", 0, 1)
+
+```
+
+Ahora cogemos variables con numeros mas grandes. Nuestro primer paso - vemos unique values, para estimar los breaks bien Sigiente decretesamos y comprobamos si se convertió todo bien.
+
+```{r}
+unique(datatrain$X.follows)
+breaks <- c(-Inf, 100, 500, 1000, 5000, Inf)
+labels <- c("Very Low", "Low", "Medium", "High", "Very High")
+datatrain$X.follows_binned <- cut(datatrain$X.follows, breaks = breaks, include.lowest = TRUE, labels = labels)
+datatrain$X.follows_binned <- ifelse(datatrain$X.follows_binned == c("Very Low", "Low", "Medium") , 0, 1)
+sum(is.na(datatrain$X.follows_binned))
+unique(datatrain$X.follows_binned)
+
+unique(datatrain$X.followers)
+datatrain$X.followers_binned <- cut(datatrain$X.followers, breaks = breaks, include.lowest = TRUE, labels = labels)
+datatrain$X.followers_binned <- ifelse(datatrain$X.followers_binned == c("Very Low", "Low", "Medium") , 0, 1)
+sum(is.na(datatrain$X.followers_binned))
+unique(datatrain$X.followers_binned)
+
+unique(datatrain$fullname.words)
+breaks <- c(-Inf, mean(datatrain$fullname.words), Inf)
+labels <- c("Low", "High")
+datatrain$fullname.words_binned <- cut(datatrain$fullname.words, breaks = breaks, include.lowest = TRUE, labels = labels)
+datatrain$fullname.words_binned <- ifelse(datatrain$fullname.words_binned ==  "Low", 0, 1)
+sum(is.na(datatrain$fullname.words_binned))
+unique(datatrain$fullname.words_binned)
+
+unique(datatrain$X.posts)
+breaks <- c(-Inf, mean(datatrain$X.posts), Inf)
+labels <- c("Low", "High")
+datatrain$X.posts_binned <- cut(datatrain$X.posts, breaks = breaks, include.lowest = TRUE, labels = labels)
+datatrain$X.posts_binned <- ifelse(datatrain$X.posts_binned ==  "Low", 0, 1)
+sum(is.na(datatrain$X.posts_binned))
+unique(datatrain$X.posts_binned)
+```
+
+Primero cogemos variables binarias, depues descretizadas.
+
+```{r}
+data_fcar<- datatrain %>%
+  select(c(profile.pic,name..username,external.URL,private,fake,nums.length.username_binned,nums.length.fullname_binned,X.posts_binned,fullname.words_binned,X.follows_binned, X.followers_binned))
+```
+
+Ahorra, podemos formar formal concept.
+
+## Formal context
+
+FormalContext encapsulates the definition of a formal context (G,M,I), being
+
+-   G the set of objects,
+
+-   M the set of attributes and
+
+-   I the (fuzzy) relationship matrix, and provides methods to operate on the context using FCA tools.
+
+```{r}
+fc1 <- FormalContext$new(data_fcar)
+fc1
+```
+
+Veamos matrix de formal concept
+
+```{r}
+#fc1$incidence()
+```
+
+Veamos qué atributos y objetos tiene el concepto formal
+
+```{r}
+fc1$attributes
+class(fc1$attributes)
+fc1$objects
+class(fc1$objects)
+```
+
+Tanto los objetos como los atributos tienen carácter de clase.
+
+Eliminamos attributes y objetos duplicados.
+
+```{r}
+fc1$clarify(TRUE)
+```
+
+Eliminamos attributes dependiente.
+
+```{r}
+fc1$reduce(TRUE)
+```
+
+Visualicemos 10 elementos aleatorios del concepto formal
+
+```{r}
+plot(fc1[87:95])
+```
+
+```{r}
+fc1[87:96]$to_latex()
+```
+
+Hacemos una copia para investigar
+
+```{r}
+fc <- fc1$clone()
+```
+
+### Set
+
+Vamos a definir Set nuevo.
+
+```{r}
+S <- Set$new(attributes = fc1$objects)
+S$assign(user2 = 1, user67 = 0)
+cat("Given the set of objects:")
+S
+```
+
+```{r}
+fc1$intent(S)
+```
+
+La cuneta no es falsa, tine foto de prefil, tiene mucho followers, follows y bastante mucho fullname.words.
+
+Ahora definimos nuevo set de objetos
+
+```{r}
+S <- Set$new(attributes = fc$attributes)
+S$assign(private = 1, external.URL = 1)
+cat("Given the set of attributes:")
+S
+```
+
+Nuestro set tiene solo dos atributos {external.URL, private}.
+
+```{r}
+fc1$extent(S)
+
+```
+
+Estos usarios tienen la cuenta privada y URL externa.
+
+### Looking for the concepts
+
+```{r}
+# Compute all concepts
+fc$find_concepts()
+```
+
+```{r}
+fc$concepts
+```
+
+Hemos generado 157 conceptos...
+
+```{r}
+fc$concepts[1:10]
+```
+
+```{r}
+fc$concepts$plot()
+```
+
+```{r}
+fc$concepts$support()
+```
+
+Hay solo un concepto con supporte 0
+
+```{r}
+ind <- which(fc$concepts$support() == 0)
+ind
+ind <- which(fc$concepts$support() >= 0.5)
+ind
+```
+
+usando funcion `extents()` Hemos obtenido el matrix: 112 x 157 sparse Matrix of class "dgCMatrix"
+
+```{r}
+#fc$concepts$extents()
+```
+
+```{r}
+fc$concepts$intents()
+```
+
+La función join_irreducibles() del objeto fc\$concepts identifica y devuelve los conceptos que están subdeterminados en relación con la operación join en el flotador de conceptos. Son elementos estructurales clave en el análisis formal de los conceptos, que permiten una comprensión y un análisis más profundos de los datos.
+
+```{r}
+fc$concepts$join_irreducibles()
+```
+
+-   Concepts 1-11: These concepts all include the attribute fake, suggesting these users are flagged as potentially fake accounts. Some also include private, indicating they may be trying to hide their activity.
+-   Concepts 12-36: These concepts all include the attribute profile.pic, indicating these users have profile pictures. Some also include private and fake. Concepts 26-32: These concepts all include the attribute external.URL, indicating these users have a link to an external website in their profile. Some are also private.
+-   Concepts 33-37: These concepts all include the attribute profile.pic and name..username, suggesting these accounts may prioritize name and profile picture but may also be private or fake.
+
+Ahora, cogemos solo conceptos de ind:
+
+```{r}
+subreticulo <- fc$concepts$sublattice(ind)
+subreticulo
+class(subreticulo)
+```
+
+```{r}
+subreticulo$plot()
+```
+
+Superior y el infimo de los conceptos calculados para subretículo.
+
+```{r}
+subreticulo$supremum(2:5)
+subreticulo$infimum(2:3)
+```
+
+### Looking for implications
+
+```{r}
+fc$find_implications()
+fc$implications
+```
+
+Hemos encontrado 32 reglas.
+
+```{r}
+fc$implications$cardinality()
+```
+
+Las normas pretenden identificar cuentas falsas en una plataforma de redes sociales analizando características como nombres de usuario, fotos de perfil, publicaciones, seguidores y enlaces externos. Los nombres de usuario cortos, los nombres completos y la actividad de seguimiento con pocos seguidores son señales de alarma. Por el contrario, tener publicaciones y un nombre completo se asocia con tener una foto de perfil. Del mismo modo, tener una foto de perfil y una URL externa sugiere una cuenta legítima.
+
+```{r}
+sizes <- fc$implications$size()
+colMeans(sizes)
+```
+
+El número de elementos dentro de cada implicación en el lado izquierdo es por término medio superior a 3 y en el lado derecho superior a 2. Ahora vamos a comprabar si implicaciones son eguales.
+
+```{r}
+imps <- fc$implications[1:4]$clone()
+imps2 <- fc$implications[3:6]$clone()
+imps %entails% imps2
+```
+
+```{r}
+fc$implications$support()
+
+```
+
+Hay mucha reglas con supporte 0.000000.
+
+```{r}
+ind <- which(fc$implications$support() == 0)
+ind
+```
+
+#### Reglas applicación
+
+Vamos a aplicar apriori algorithm
+
+```{r}
+fc$implications$apply_rules(rules = c("composition",
+                                     "generalization"))
+```
+
+Quieremos ver implicaciones
+
+```{r}
+fc$implications
+```
+
+La presencia de fake en la condición (lado izquierdo) de muchas reglas sugiere un enfoque en la identificación de cuentas falsas. Algunos atributos como profile.pic o external.URL parecen ser indicadores de un perfil más legítimo (lo contrario de fake). El número de publicaciones, seguidores y la longitud del nombre de usuario (representados por valores agrupados) se utilizan junto con otros atributos para la clasificación.
+
+Filtramos solo reglas que tienen a la izquierda "fake"
+
+```{r}
+leaf_lhs <- fc$implications$filter(rhs = NULL, lhs = "fake", drop = FALSE)
+leaf_lhs
+```
+
+Nos encontado 19 reglas, estas reglas implican que la cuenta es falsa

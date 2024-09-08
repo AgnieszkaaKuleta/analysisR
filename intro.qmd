@@ -1,0 +1,27 @@
+# Introduction
+
+## Conjunto de datos
+
+En un proyecto determinado utilizaremos un conjunto de datos "Cuentas de Instagram Falsas/Spammer/Genuinas" disponible en Kaggle. El contiene información sobre cuentas de Instagram clasificadas como:
+
+-   Cuentas Falsas (Fake Accounts): Incluye cuentas identificadas como no auténticas o falsas. Estas cuentas pueden ser operadas por bots o personas que intentan aumentar artificialmente su presencia en Instagram mediante diversas prácticas deshonestas.
+-   Cuentas Spammer (Spammer Accounts): Este conjunto de datos contiene cuentas identificadas como spammer. Esto significa que son responsables de publicar regularmente contenido no deseado o no útil en Instagram, a menudo con el propósito de promocionar productos, servicios o sitios web.
+-   Cuentas Genuinas (Genuine Accounts): Estas cuentas se consideran auténticas y reales, lo que significa que pertenecen a usuarios reales de Instagram que utilizan la plataforma de acuerdo con las reglas y políticas del servicio.
+
+El conjunto de datos se divide en secciones de prueba y de entrenamiento. Utilizaremos esta división en una parte posterior del proyecto. En las primeras partes del proyecto, nos centraremos en el seccion de prueba. En la parte de Machine Learning vamos a usar ambos conjuntos de datos.
+
+Ambos datasets son el tipo de data frame, entonces no tenemos que cambiar nada. Dataset de test tiene 120 observaciones y 12 variables. Por otro lado dataset de train contiene 576 observaciones y 12 los mismos varaibales.
+
+El conjunto de datos se ha recopilado mediante un rastreador del 15 al 19 de marzo de 2019.
+
+## Libraries que usamos
+
+Utilizaremos las bibliotecas que se indican a continuación. Estas bibliotecas nos permitirán visualizar e interpretar los datos (ggplot2, gganimate, dplyr), para hacer reglas(arules) y para Formal Concept fcar.
+
+## Objetivos del proyecto
+
+1.  Detección de cuentas falsas y de spam
+2.  Identificar reglas de fake cuentas.
+3.  Identificar reglas de longitud de descripcion.
+4.  Identificar correlaciones entre variables
+5.  Analizar y predicir usando time series

@@ -1,0 +1,3 @@
+# Preface {.unnumbered}
+
+En un proyecto determinado utilizaremos un conjunto de datos "Cuentas de Instagram Falsas/Spammer/Genuinas" disponible en Kaggle. Durante el análisis, utilizaremos las bibliotecas y métodos aprendidos en la Universidad de Málaga en las clases de laboratorio científico y, basándonos en ellos, analizaremos el conjunto de datos en cuestión.

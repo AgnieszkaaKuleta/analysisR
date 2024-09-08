@@ -1,0 +1,7 @@
+# References {.unnumbered}
+
+::: {#refs}
+https://www.kaggle.com/datasets/free4ever1/instagram-fake-spammer-genuine-accounts
+
+https://es.wikipedia.org/wiki/Instagram
+:::

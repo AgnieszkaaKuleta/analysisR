@@ -1,0 +1,32 @@
+project:
+  type: book
+
+book:
+  title: "Detección de cuentas fake en Instragram"
+  subtitle: "Laboratorio Cientifico projecto"
+  author: "Agnieszka Kuleta"
+  date: "08/05/2024"
+  sidebar:
+    style: docked
+    background: light
+  cover-image: cover.png
+  chapters:
+    - index.qmd
+    - intro.qmd
+    - eda.qmd
+    - reglas.qmd
+    - fcar.qmd
+    - reg.qmd
+    - ts.qmd
+    - references.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+

@@ -1,0 +1,672 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\PassOptionsToPackage{dvipsnames,svgnames,x11names}{xcolor}
+%
+\documentclass[
+  letterpaper,
+  DIV=11,
+  numbers=noendperiod]{scrreprt}
+
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else  
+    % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\setcounter{secnumdepth}{5}
+% Make \paragraph and \subparagraph free-standing
+\ifx\paragraph\undefined\else
+  \let\oldparagraph\paragraph
+  \renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+  \let\oldsubparagraph\subparagraph
+  \renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{241,243,245}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.40,0.45,0.13}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\BuiltInTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\ExtensionTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.28,0.35,0.67}{#1}}
+\newcommand{\ImportTok}[1]{\textcolor[rgb]{0.00,0.46,0.62}{#1}}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\NormalTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.68,0.00,0.00}{#1}}
+\newcommand{\RegionMarkerTok}[1]{\textcolor[rgb]{0.00,0.23,0.31}{#1}}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.07,0.07,0.07}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.13,0.47,0.30}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.37,0.37,0.37}{\textit{#1}}}
+
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}\usepackage{longtable,booktabs,array}
+\usepackage{calc} % for calculating minipage widths
+% Correct order of tables after \paragraph or \subparagraph
+\usepackage{etoolbox}
+\makeatletter
+\patchcmd\longtable{\par}{\if@noskipsec\mbox{}\fi\par}{}{}
+\makeatother
+% Allow footnotes in longtable head/foot
+\IfFileExists{footnotehyper.sty}{\usepackage{footnotehyper}}{\usepackage{footnote}}
+\makesavenoteenv{longtable}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+
+\KOMAoption{captions}{tableheading}
+\makeatletter
+\makeatother
+\makeatletter
+\@ifpackageloaded{bookmark}{}{\usepackage{bookmark}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\AtBeginDocument{%
+\ifdefined\contentsname
+  \renewcommand*\contentsname{Table of contents}
+\else
+  \newcommand\contentsname{Table of contents}
+\fi
+\ifdefined\listfigurename
+  \renewcommand*\listfigurename{List of Figures}
+\else
+  \newcommand\listfigurename{List of Figures}
+\fi
+\ifdefined\listtablename
+  \renewcommand*\listtablename{List of Tables}
+\else
+  \newcommand\listtablename{List of Tables}
+\fi
+\ifdefined\figurename
+  \renewcommand*\figurename{Figure}
+\else
+  \newcommand\figurename{Figure}
+\fi
+\ifdefined\tablename
+  \renewcommand*\tablename{Table}
+\else
+  \newcommand\tablename{Table}
+\fi
+}
+\@ifpackageloaded{float}{}{\usepackage{float}}
+\floatstyle{ruled}
+\@ifundefined{c@chapter}{\newfloat{codelisting}{h}{lop}}{\newfloat{codelisting}{h}{lop}[chapter]}
+\floatname{codelisting}{Listing}
+\newcommand*\listoflistings{\listof{codelisting}{List of Listings}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{caption}{}{\usepackage{caption}}
+\@ifpackageloaded{subcaption}{}{\usepackage{subcaption}}
+\makeatother
+\makeatletter
+\@ifpackageloaded{tcolorbox}{}{\usepackage[skins,breakable]{tcolorbox}}
+\makeatother
+\makeatletter
+\@ifundefined{shadecolor}{\definecolor{shadecolor}{rgb}{.97, .97, .97}}
+\makeatother
+\makeatletter
+\makeatother
+\makeatletter
+\makeatother
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Detección de cuentas fake en Instragram},
+  pdfauthor={Agnieszka Kuleta},
+  colorlinks=true,
+  linkcolor={blue},
+  filecolor={Maroon},
+  citecolor={Blue},
+  urlcolor={Blue},
+  pdfcreator={LaTeX via pandoc}}
+
+\title{Detección de cuentas fake en Instragram}
+\usepackage{etoolbox}
+\makeatletter
+\providecommand{\subtitle}[1]{% add subtitle to \maketitle
+  \apptocmd{\@title}{\par {\large #1 \par}}{}{}
+}
+\makeatother
+\subtitle{Laboratorio Cientifico projecto}
+\author{Agnieszka Kuleta}
+\date{2024-08-05}
+
+\begin{document}
+\maketitle
+\ifdefined\Shaded\renewenvironment{Shaded}{\begin{tcolorbox}[frame hidden, sharp corners, interior hidden, borderline west={3pt}{0pt}{shadecolor}, breakable, boxrule=0pt, enhanced]}{\end{tcolorbox}}\fi
+
+\renewcommand*\contentsname{Table of contents}
+{
+\hypersetup{linkcolor=}
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\bookmarksetup{startatroot}
+
+\hypertarget{preface}{%
+\chapter*{Preface}\label{preface}}
+\addcontentsline{toc}{chapter}{Preface}
+
+\markboth{Preface}{Preface}
+
+En un proyecto determinado utilizaremos un conjunto de datos ``Cuentas
+de Instagram Falsas/Spammer/Genuinas'' disponible en Kaggle. Durante el
+análisis, utilizaremos las bibliotecas y métodos aprendidos en la
+Universidad de Málaga en las clases de laboratorio científico y,
+basándonos en ellos, analizaremos el conjunto de datos en cuestión.
+
+\bookmarksetup{startatroot}
+
+\hypertarget{introduction}{%
+\chapter{Introduction}\label{introduction}}
+
+\hypertarget{conjunto-de-datos}{%
+\section{Conjunto de datos}\label{conjunto-de-datos}}
+
+En un proyecto determinado utilizaremos un conjunto de datos ``Cuentas
+de Instagram Falsas/Spammer/Genuinas'' disponible en Kaggle. El contiene
+información sobre cuentas de Instagram clasificadas como:
+
+\begin{itemize}
+\tightlist
+\item
+  Cuentas Falsas (Fake Accounts): Incluye cuentas identificadas como no
+  auténticas o falsas. Estas cuentas pueden ser operadas por bots o
+  personas que intentan aumentar artificialmente su presencia en
+  Instagram mediante diversas prácticas deshonestas.
+\item
+  Cuentas Spammer (Spammer Accounts): Este conjunto de datos contiene
+  cuentas identificadas como spammer. Esto significa que son
+  responsables de publicar regularmente contenido no deseado o no útil
+  en Instagram, a menudo con el propósito de promocionar productos,
+  servicios o sitios web.
+\item
+  Cuentas Genuinas (Genuine Accounts): Estas cuentas se consideran
+  auténticas y reales, lo que significa que pertenecen a usuarios reales
+  de Instagram que utilizan la plataforma de acuerdo con las reglas y
+  políticas del servicio.
+\end{itemize}
+
+El conjunto de datos se divide en secciones de prueba y de
+entrenamiento. Utilizaremos esta división en una parte posterior del
+proyecto. En las primeras partes del proyecto, nos centraremos en el
+seccion de prueba. En la parte de Machine Learning vamos a usar ambos
+conjuntos de datos.
+
+Ambos datasets son el tipo de data frame, entonces no tenemos que
+cambiar nada. Dataset de test tiene 120 observaciones y 12 variables.
+Por otro lado dataset de train contiene 576 observaciones y 12 los
+mismos varaibales.
+
+\hypertarget{libraries-que-usamos}{%
+\section{Libraries que usamos}\label{libraries-que-usamos}}
+
+Utilizaremos las bibliotecas que se indican a continuación. Estas
+bibliotecas nos permitirán visualizar e interpretar los datos (ggplot2,
+gganimate, dplyr), para hacer reglas(arules) y para ml caret.
+
+\hypertarget{objetivos-del-proyecto}{%
+\section{Objetivos del proyecto}\label{objetivos-del-proyecto}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Detección de cuentas falsas y de spam: desarrollar modelos de
+  aprendizaje automático que detecten automáticamente cuentas falsas y
+  de spam en la plataforma Instagram. 2.Prevención del spam y la
+  manipulación: identificar reglas de spam y manipulación.
+\end{enumerate}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{anuxe1lisis-exploratorio-de-datos}{%
+\chapter{Análisis exploratorio de
+datos}\label{anuxe1lisis-exploratorio-de-datos}}
+
+\hypertarget{cargand-data-set-y-libraries}{%
+\section{Cargand data set y
+libraries}\label{cargand-data-set-y-libraries}}
+
+El primer paso para empezar con este proyecto es cargar los datos y
+comprender cómo está estructurada la información dentro del conjunto de
+datos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(readr)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: package 'ggplot2' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(gganimate)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: package 'gganimate' was built under R version 4.3.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(dplyr)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+
+Attaching package: 'dplyr'
+\end{verbatim}
+
+\begin{verbatim}
+The following objects are masked from 'package:stats':
+
+    filter, lag
+\end{verbatim}
+
+\begin{verbatim}
+The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datatest}\OtherTok{\textless{}{-}}\FunctionTok{read.csv}\NormalTok{(}\StringTok{"test.csv"}\NormalTok{,}\AttributeTok{sep =} \StringTok{","}\NormalTok{)}
+\NormalTok{datatrain}\OtherTok{\textless{}{-}}\FunctionTok{read.csv}\NormalTok{(}\StringTok{"train.csv"}\NormalTok{, }\AttributeTok{sep =} \StringTok{","}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{observaciones-del-conjunto-de-datos}{%
+\section{Observaciones del conjunto de
+datos}\label{observaciones-del-conjunto-de-datos}}
+
+A continuación, aplicamos todos los cambios necesarios al conjunto de
+datos antes de trabajar en el análisis exploratorio de datos y el
+modelado.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{head}\NormalTok{(datatrain)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  profile.pic nums.length.username fullname.words nums.length.fullname
+1           1                 0.27              0                    0
+2           1                 0.00              2                    0
+3           1                 0.10              2                    0
+4           1                 0.00              1                    0
+5           1                 0.00              2                    0
+6           1                 0.00              4                    0
+  name..username description.length external.URL private X.posts X.followers
+1              0                 53            0       0      32        1000
+2              0                 44            0       0     286        2740
+3              0                  0            0       1      13         159
+4              0                 82            0       0     679         414
+5              0                  0            0       1       6         151
+6              0                 81            1       0     344      669987
+  X.follows fake
+1       955    0
+2       533    0
+3        98    0
+4       651    0
+5       126    0
+6       150    0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{tail}\NormalTok{(datatrain)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+    profile.pic nums.length.username fullname.words nums.length.fullname
+571           1                 0.20              1                 0.00
+572           1                 0.55              1                 0.44
+573           1                 0.38              1                 0.33
+574           1                 0.57              2                 0.00
+575           1                 0.57              1                 0.00
+576           1                 0.27              1                 0.00
+    name..username description.length external.URL private X.posts X.followers
+571              0                 28            0       0       0          15
+572              0                  0            0       0      33         166
+573              0                 21            0       0      44          66
+574              0                  0            0       0       4          96
+575              0                 11            0       0       0          57
+576              0                  0            0       0       2         150
+    X.follows fake
+571        64    1
+572       596    1
+573        75    1
+574       339    1
+575        73    1
+576       487    1
+\end{verbatim}
+
+\hypertarget{na-valores}{%
+\subsection{NA valores}\label{na-valores}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\StringTok{"Data train:"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] "Data train:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(}\FunctionTok{is.na.data.frame}\NormalTok{(datatrain))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\StringTok{"Data test:"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] "Data test:"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{sum}\NormalTok{(}\FunctionTok{is.na.data.frame}\NormalTok{(datatest))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 0
+\end{verbatim}
+
+En primer lugar, podemos ver que no hay valores perdidos que tratar.
+Todas las características de ambos marcos de datos son numéricas. Ambos
+marcos de datos son pequeños, y el mayor de ellos sólo tiene 576
+muestras de datos.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{summary}\NormalTok{(datatrain)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  profile.pic     nums.length.username fullname.words  nums.length.fullname
+ Min.   :0.0000   Min.   :0.0000       Min.   : 0.00   Min.   :0.00000     
+ 1st Qu.:0.0000   1st Qu.:0.0000       1st Qu.: 1.00   1st Qu.:0.00000     
+ Median :1.0000   Median :0.0000       Median : 1.00   Median :0.00000     
+ Mean   :0.7014   Mean   :0.1638       Mean   : 1.46   Mean   :0.03609     
+ 3rd Qu.:1.0000   3rd Qu.:0.3100       3rd Qu.: 2.00   3rd Qu.:0.00000     
+ Max.   :1.0000   Max.   :0.9200       Max.   :12.00   Max.   :1.00000     
+ name..username    description.length  external.URL       private      
+ Min.   :0.00000   Min.   :  0.00     Min.   :0.0000   Min.   :0.0000  
+ 1st Qu.:0.00000   1st Qu.:  0.00     1st Qu.:0.0000   1st Qu.:0.0000  
+ Median :0.00000   Median :  0.00     Median :0.0000   Median :0.0000  
+ Mean   :0.03472   Mean   : 22.62     Mean   :0.1163   Mean   :0.3819  
+ 3rd Qu.:0.00000   3rd Qu.: 34.00     3rd Qu.:0.0000   3rd Qu.:1.0000  
+ Max.   :1.00000   Max.   :150.00     Max.   :1.0000   Max.   :1.0000  
+    X.posts        X.followers         X.follows           fake    
+ Min.   :   0.0   Min.   :       0   Min.   :   0.0   Min.   :0.0  
+ 1st Qu.:   0.0   1st Qu.:      39   1st Qu.:  57.5   1st Qu.:0.0  
+ Median :   9.0   Median :     150   Median : 229.5   Median :0.5  
+ Mean   : 107.5   Mean   :   85307   Mean   : 508.4   Mean   :0.5  
+ 3rd Qu.:  81.5   3rd Qu.:     716   3rd Qu.: 589.5   3rd Qu.:1.0  
+ Max.   :7389.0   Max.   :15338538   Max.   :7500.0   Max.   :1.0  
+\end{verbatim}
+
+Se puede observar que nuestros marcos de datos están organizados en lo
+que parecen ser características continuas y binarias. Estas son las
+características que tenemos a mano:
+
+\begin{itemize}
+\item
+  foto de perfil: variable binaria que indica si una cuenta tiene una
+  foto de perfil(1) o no(0);
+\item
+  nums/length username: variable continua que indica la proporción de
+  caracteres numéricos por la longitud total del nombre de usuario de
+  una cuenta;
+\item
+  palabras de nombre completo: variable continua que cuenta el total de
+  palabras del nombre de la persona titular de la cuenta;
+\item
+  nums/lenght fullname: variable continua que indica la proporción de
+  caracteres numéricos por la longitud total del nombre completo de la
+  persona;
+\item
+  name == username: variable binaria que indica si el nombre de la
+  persona coincide con el nombre de usuario (1=si, 0=no);
+\item
+  longitud de la descripción: variable continua, la longitud de la
+  descripción del perfil.
+\item
+  URL externa: variable binaria que indica si un perfil tiene un enlace
+  a un sitio web externo(1) en su bio(0);
+\item
+  privado: variable binaria que indica si el perfil está cerrado(1) para
+  los no seguidores o no(0);
+\item
+  \#posts: variable continua que contiene el número de publicaciones de
+  ese perfil;
+\item
+  \#seguidores: variable continua que contiene el número total de
+  seguidores de cada cuenta;
+\item
+  \#seguidos:variable continua que contiene el número total de personas
+  a las que sigue la cuenta
+\item
+  fake: La variable objetivo.Si una cuenta es falsa(1) o no(0).
+\end{itemize}
+
+\hypertarget{duplicados}{%
+\subsection{Duplicados}\label{duplicados}}
+
+Las filas duplicadas pueden introducir sesgos en el modelo y llevar a un
+sobreajuste. Así que vamos a eliminarlas.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{datatest }\OtherTok{\textless{}{-}}\NormalTok{ datatest }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by\_all}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{row\_number}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+
+\NormalTok{datatrain }\OtherTok{\textless{}{-}}\NormalTok{ datatrain }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{group\_by\_all}\NormalTok{() }\SpecialCharTok{\%\textgreater{}\%}
+  \FunctionTok{filter}\NormalTok{(}\FunctionTok{row\_number}\NormalTok{() }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)}
+\FunctionTok{print}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"Data train:"}\NormalTok{, }\FunctionTok{dim}\NormalTok{(datatrain)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] "Data train: 574" "Data train: 12" 
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{print}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\StringTok{"Data test:"}\NormalTok{, }\FunctionTok{dim}\NormalTok{(datatest)))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] "Data test: 118" "Data test: 12" 
+\end{verbatim}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{anuxe1lisis-exploratorio-de-datos-y-visualisaciones}{%
+\chapter{Análisis exploratorio de datos y
+visualisaciones}\label{anuxe1lisis-exploratorio-de-datos-y-visualisaciones}}
+
+\hypertarget{outliers}{%
+\subsection{outliers}\label{outliers}}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{reglas}{%
+\chapter{reglas}\label{reglas}}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{fcar}{%
+\chapter{fcar}\label{fcar}}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{machine-learning}{%
+\chapter{Machine Learning}\label{machine-learning}}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{linear-regression}{%
+\chapter{Linear regression}\label{linear-regression}}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{time-series}{%
+\chapter{Time series}\label{time-series}}
+
+\hypertarget{decision-tree}{%
+\section{Decision tree}\label{decision-tree}}
+
+\hypertarget{clustering}{%
+\section{Clustering}\label{clustering}}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{summary}{%
+\chapter{Summary}\label{summary}}
+
+In summary, this book has no content whatsoever.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{1} \SpecialCharTok{+} \DecValTok{1}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+[1] 2
+\end{verbatim}
+
+\bookmarksetup{startatroot}
+
+\hypertarget{references}{%
+\chapter*{References}\label{references}}
+\addcontentsline{toc}{chapter}{References}
+
+\markboth{References}{References}
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{0}{0}
+\end{CSLReferences}
+
+
+
+\end{document}

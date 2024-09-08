@@ -1,0 +1,375 @@
+---
+title: "Regressión"
+---
+
+## Complemento EDA
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+library(GGally)
+library(corrplot)
+library(forecast)
+
+datatrain<-read.csv("dataAeda.csv", sep = ",")
+```
+
+### Data correlations
+
+Ya que tenomos los datos preparados en nuestro proximo paso vamos a ver correleaciones entre variables.
+
+```{r}
+correlation_matrix <- cor(datatrain)
+corrplot(correlation_matrix, method = "color")
+```
+
+-   **La foto** de perfil tiene una fuerte correlación negativa con **las cuentas falsas**, lo que indica que no es probable que las cuentas falsas tengan fotos de perfil, lo que tiene sentido teniendo en cuenta el poco esfuerzo que uno puede haber puesto para crear la cuenta.
+-   Se han observado fuertes correlaciones negativas con **la longitud de la descripción** y **las URL** externas seguidas de palabras de nombre completo
+-   Se observa una fuerte correlación con **la longitud numérica del nombre de usuario**, lo que indica que **las cuentas falsas** suelen tener caracteres numéricos, al igual que el nombre completo. Existe una correlación positiva entre el nombre y el nombre de usuario, lo que indica que puede tratarse de una cuenta falsa.
+
+## ¿De qué depende que una cuenta sea falsa?
+
+### ¿Con qué variables hay mayor relación?
+
+Intentar un modelo de regresión lineal entre **fake** y el resto de variables:
+
+Del gráfico de correlación observamos que las variables: -profile pic (correlación negativa) -nums.lenght.username (correlación positiva) -descripción.longitud (correlación negativa) influyen significativamente en la variable fake. El regresivo hará que el análisis exacto de la exacta y por separado.
+
+Vamos a hacer tambien un modelo para asegurarnos.
+
+```{r}
+m1 <- lm(data = datatrain, formula = 
+           fake~ .)
+m1
+```
+
+```{r}
+summary(m1)
+```
+
+Sobre la base de los resultados anteriores, las variables que merece la pena seguir estudiando por su significación estadística son:
+
+-   profile.pic (correlación negativa)
+-   nums.length.username(correlación positiva)
+-   fullname.words(correlación negativa)
+-   name..username(correlación positiva)
+-   description.length(correlación negativa)
+-   URL.extern(correlación negativa)
+-   X.posts(correlación negativa) Las variables nums.length.fullname, private, X.followers y X.follows no merecen mayor consideración, ya que sus valores p indican que no son estadísticamente significativas en este modelo.
+
+Además, podemos observar que el modelo tiene un R-cuadrado múltiple de 0,6063, lo que significa que aproximadamente el 60,63% de la variación de la variable dependiente se explica por las variables independientes del modelo.
+
+Vamos a encontrar el modelo mas explicativo/adecuado. Empezamos con una solo variable.
+
+#### profil.foto
+
+```{r}
+m1 <- lm(data = datatrain, formula = 
+           fake~profile.pic)
+summary(m1)
+
+ggplot(datatrain, aes(x = profile.pic, y = fake)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ profile.pic",
+       x = "profile.pic",
+       y = "fake")
+```
+
+El modelo explica el 40,82% de la varianza de la variable "falso", y la relación entre "foto.perfil" y "falso" es estadísticamente significativa (valor p \< 2,2e-16). Esto sugiere que el modelo capta una asociación significativa entre la foto de perfil y la probabilidad de ser falso.
+
+#### nums.length.username
+
+```{r}
+m1 <- lm(data = datatrain, formula = 
+           fake~nums.length.username)
+summary(m1)
+
+ggplot(datatrain, aes(x = nums.length.username, y = fake)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ nums.length.username",
+       x = "nums.length.username",
+       y = "fake")
+```
+
+Basado en la salida, este modelo de regresión lineal analiza cómo la longitud del nombre de usuario (nums.length.username) afecta a una variable binaria llamada "fake". El modelo explica el 34,56% de la varianza en la variable "fake". Existe una relación estadísticamente significativa (p-valor \< 2.2e-16) entre la longitud del nombre de usuario y ser clasificado como "fake". En otras palabras, los nombres de usuario con una determinada longitud tienen más probabilidades de estar asociados con cuentas falsas.
+
+#### fullname.words
+
+```{r}
+m1 <- lm(data = datatrain, formula = 
+           fake~fullname.words)
+summary(m1)
+
+ggplot(datatrain, aes(x = fullname.words, y = fake)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ fullname.words",
+       x = "fullname.words",
+       y = "fake")
+```
+
+A partir de los resultados, este modelo de regresión lineal examina la relación entre el número de palabras del nombre completo de un usuario (nombre.completo.palabras) y una variable binaria denominada "falso". El modelo sólo explica el 8,87% de la varianza de la variable "falso". Sin embargo, existe una relación estadísticamente significativa (valor p \< 3,23e-13) entre el número de palabras del nombre completo y la clasificación como "falso". Esto sugiere que los usuarios con nombres completos que contienen un número específico de palabras podrían ser más propensos a ser cuentas falsas, pero el poder explicativo de este modelo es relativamente bajo.
+
+```{r}
+m1 <- lm(data = datatrain, formula = 
+           fake~name..username)
+summary(m1)
+
+ggplot(datatrain, aes(x = name..username, y = fake)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ name..username",
+       x = "name..username",
+       y = "fake")
+```
+
+Este modelo sugiere una relación positiva estadísticamente significativa, aunque débil, entre la variable combinada nombre-nombre de usuario y la probabilidad de que una cuenta sea falsa. Sin embargo, los bajos valores de R-cuadrado indican que probablemente otros factores desempeñan un papel más importante a la hora de determinar si una cuenta es falsa.
+
+#### description.length
+
+```{r}
+
+m1 <- lm(data = datatrain, formula = 
+           fake~description.length)
+summary(m1)
+
+ggplot(datatrain, aes(x = description.length, y = fake)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ description.length",
+       x = "description.length",
+       y = "fake")
+```
+
+Este modelo muestra una relación negativa y estadísticamente significativa entre la longitud de la descripción de una cuenta y la probabilidad de que sea falsa. Las descripciones más largas se asocian a una menor probabilidad prevista de ser falsa. Además, el modelo explica una parte notable de la varianza de "falso" en comparación con las características anteriores. Esto sugiere que la longitud de la descripción puede ser un indicador útil para identificar cuentas falsas.
+
+#### external.URL
+
+```{r}
+m1 <- lm(data = datatrain, formula = 
+           fake~external.URL)
+summary(m1)
+
+ggplot(datatrain, aes(x = external.URL, y = fake)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ external.URL",
+       x = "external.URL",
+       y = "fake")
+```
+
+Este modelo muestra una relación negativa y estadísticamente significativa entre la presencia de una URL externa en la descripción de una cuenta y la probabilidad de que sea falsa. Las cuentas con URL externas se asocian a una menor probabilidad prevista de ser falsas. Esto sugiere que la presencia de una URL externa puede ser otro indicador útil para identificar cuentas falsas.
+
+Es importante tener en cuenta que algunas cuentas legítimas también pueden incluir URL externas en sus descripciones. Un modelo más completo podría combinar estas características con otras para mejorar la precisión de la detección de cuentas falsas.
+
+#### X.posts
+
+```{r}
+m1 <- lm(data = datatrain, formula = 
+           fake~X.posts)
+summary(m1)
+
+ggplot(datatrain, aes(x = datatrain$X.posts, y = fake)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ X.posts",
+       x = "X.posts",
+       y = "fake")
+```
+
+Este modelo muestra una relación negativa y estadísticamente significativa entre la presencia de una URL externa en la descripción de una cuenta y la probabilidad de que sea falsa. Las cuentas con URL externas se asocian a una menor probabilidad prevista de ser falsas. Esto sugiere que la presencia de una URL externa puede ser otro indicador útil para identificar cuentas falsas.
+
+Es importante tener en cuenta que algunas cuentas legítimas también pueden incluir URL externas en sus descripciones. Un modelo más completo podría combinar estas características con otras para mejorar la precisión de la detección de cuentas falsas.
+
+### Modelos multiple
+
+Hora, vamos a intertar a hacer modelo con variables multiples.
+
+```{r}
+lm_model1 <- lm(fake ~ name..username + profile.pic+nums.length.username + fullname.words+description.length+external.URL+X.posts,
+                 data = datatrain)
+summary(lm_model1)
+```
+
+The model explains approximately 60% of the variance in the dependent variable fake, as indicated by the R-squared value. All predictors are statistically significant, suggesting they contribute meaningfully to predicting whether a profile is fake.
+
+Tambien podemos hacer cambios en este modelo para intentar a mejorarlo podemosmos eliminar variables X.posts, name..username, fullname.words.
+
+**Nuestro objetivo es generar un modelo mejoorado.**
+
+```{r}
+lm_model1 <- lm(fake ~ profile.pic+nums.length.username + description.length+external.URL+X.posts,
+                 data = datatrain)
+summary(lm_model1)
+```
+
+El modelo explica aproximadamente el 57,79% de la varianza de la variable dependiente falsificación, como indica el valor R-cuadrado. Todos los predictores son estadísticamente significativos, lo que sugiere que contribuyen significativamente a predecir si un perfil es falso. Este modelo más simple sigue manteniendo un alto poder explicativo con menos variables, lo que puede ser beneficioso para la interpretabilidad y la reducción de la multicolinealidad.
+
+### Poly_model
+
+Mentaniemos los variables de ultimo modelo...
+
+```{r}
+lmejor <- lm(formula = fake ~ nums.length.username * I(profile.pic ^2), data = datatrain)
+summary(lmejor)
+```
+
+```{r}
+plot(lmejor)
+```
+
+Visto el grafo con residuals, se puede decir que el model es bastante bien *fitted*, espencialmente a la derecha del grafo.sss
+
+```{r}
+# Replace these values with your actual coefficients
+coef_data <- data.frame(
+  feature = c("(Intercept)", "nums.length.username", "I(profile.pic^2)", "nums.length.username:I(profile.pic^2)"),
+  estimate = c(0.96994, 0.06507, -0.84985, 1.47060)
+)
+
+ggplot(coef_data, aes(x = feature, y = estimate, fill="red")) +
+  geom_bar(stat = "identity") +  # Can also use geom_point() for scatter plot
+  labs(title = "Model Coefficients (Fake ~ Features)",
+       x = "Feature",
+       y = "Coefficient Value") +
+  theme_bw() +
+  coord_flip()  # Optional: Flips x and y axis for better readability
+```
+
+-   **(Intercepción)**: Representa la probabilidad media prevista de ser falsa para las cuentas con nombres de usuario de longitud cero y sin foto de perfil (probablemente poco realista). El intercepto es estadísticamente significativo (valor p \< 2e-16).
+-   **nums.length.username:** El coeficiente (0,06507) es positivo pero no significativo (valor p = 0,529). Por sí sola, la longitud del nombre de usuario parece tener una débil asociación positiva con ser falso, pero no es estadísticamente relevante aquí.
+-   **I(perfil.pic\^2)**: El coeficiente (-0,84985) es negativo y muy significativo (valor p \< 2e-16). Esto sugiere que las cuentas con fotos de perfil (porque el término al cuadrado sería 1) tienen una menor probabilidad prevista de ser falsas en comparación con las cuentas sin foto (el término al cuadrado sería 0).
+-   **nums.length.username:I(profile.pic\^2)**: Este coeficiente (1,47060) es positivo y muy significativo (valor p \< 2e-16). Se trata del término de interacción. Indica que la relación entre la longitud del nombre de usuario y ser falso es positiva y más fuerte para las cuentas con fotos de perfil (donde el término al cuadrado es 1) en comparación con las que no las tienen (donde el término al cuadrado es 0).
+
+Este modelo con términos de interacción revela una relación más interesante entre la longitud del nombre de usuario, la foto de perfil y ser falso:
+
+Las cuentas con foto de perfil suelen tener menos probabilidades de ser falsas. El efecto de la longitud del nombre de usuario sobre la falsedad es mayor en las cuentas con foto de perfil. Un nombre de usuario más largo aumenta más la probabilidad de ser falso en las cuentas con foto de perfil que en las que no la tienen. Esto sugiere que las cuentas con fotos de perfil y nombres de usuario más largos podrían ser incluso más sospechosas que las cuentas con sólo una de esas características. Esto subraya la importancia de tener en cuenta varias características a la vez para detectar mejor las cuentas falsas.
+
+## ¿De qué depende la longitud de la descripción?
+
+```{r}
+m2 <- lm(data = datatrain, formula = 
+           description.length~ .)
+m2
+```
+
+-   foto.perfil (10,09): Tener una foto de perfil se asocia con un aumento de aproximadamente 10,09 unidades en la longitud de la descripción.
+
+```{r}
+ggplot(datatrain, aes(x = datatrain$private, y = description.length)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión description.length ~ private",
+       x = "private",
+       y = "description.length")
+```
+
+-   nums.length.username (-10,70): Un aumento en la longitud de los caracteres numéricos del nombre de usuario se asocia con una disminución de aproximadamente 10,70 unidades en la longitud de la descripción.
+
+```{r}
+ggplot(datatrain, aes(x = datatrain$nums.length.username, y = description.length)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión description.length ~ nums.length.username",
+       x = "nums.length.username",
+       y = "description.length")
+```
+
+-   URL.externa (38,76): Tener una URL externa se asocia con un aumento sustancial de aproximadamente 38,76 unidades en description.length.
+
+```{r}
+ggplot(datatrain, aes(x = datatrain$external.URL, y = description.length)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión fake ~ external.URL",
+       x = "external.URL",
+       y = "description.length")
+```
+
+-   private (-5,27): Tener una cuenta privada se asocia con una disminución de aproximadamente 5,27 unidades en description.length.
+
+```{r}
+ggplot(datatrain, aes(x = datatrain$private, y = description.length)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión description.length ~ private",
+       x = "private",
+       y = "description.length")
+```
+
+-falsa (-13,86): Ser una cuenta falsa se asocia con una disminución de aproximadamente 13,86 unidades en la longitud de la descripción.
+
+Este modelo de regresión lineal intenta explicar la variación en la longitud de la descripción en función de varias características de los perfiles de usuario. Los coeficientes positivos significativos (como URL.externa y foto.perfil) sugieren que ciertos atributos están asociados a descripciones más largas, mientras que los coeficientes negativos significativos (como falso y ums.length.username) sugieren descripciones más cortas.
+
+```{r}
+lm_model1 <- lm(description.length ~ nums.length.username,
+                 data = datatrain)
+summary(lm_model1)
+```
+
+La longitud del nombre de usuario es un predictor significativo de la longitud de la descripción, y los nombres de usuario más largos se asocian a descripciones más cortas. Sin embargo, el modelo sólo explica una pequeña parte de la variabilidad en la longitud de las descripciones, lo que sugiere que otros factores también pueden desempeñar un papel importante a la hora de determinar la longitud de la descripción.
+
+```{r}
+lm_model1 <- lm(description.length ~ nums.length.username+profile.pic,
+                 data = datatrain)
+summary(lm_model1)
+```
+
+Tanto la longitud del nombre de usuario como la presencia de una foto de perfil son predictores significativos de la longitud de la descripción. La presencia de una foto de perfil se asocia a una descripción más larga, mientras que un nombre de usuario más largo se asocia a una descripción más corta. El modelo explica una mayor parte de la variabilidad en la longitud de las descripciones en comparación con el modelo anterior, pero sigue habiendo una cantidad significativa de variabilidad no explicada.
+
+```{r}
+lm_model1 <- lm(description.length ~ nums.length.username+profile.pic+I(external.URL^2),
+                 data = datatrain)
+summary(lm_model1)
+```
+
+La longitud del nombre de usuario, la presencia de una foto de perfil y el cuadrado del número de URL externas son predictores significativos de la longitud de la descripción. La presencia de una foto de perfil y el cuadrado del número de URL externas se asocian a descripciones más largas, mientras que un nombre de usuario más largo se asocia a descripciones más cortas. La inclusión del cuadrado del número de URL externas mejora notablemente la capacidad explicativa del modelo, como demuestra el aumento del valor R-cuadrado.
+
+### Conclusions
+
+Los análisis muestran que la longitud del nombre de usuario, la presencia de una foto de perfil y el número de URL externas (en particular, su cuadrado) tienen un impacto significativo en la longitud de la descripción. El modelo final con tres variables (nums.length.username, profile.pic, I(external.URL\^2)) es el más eficaz, ya que explica más del 31% de la variación en la longitud de las descripciones. Los nombres de usuario más largos se asocian a descripciones más cortas, tener una foto de perfil se asocia a descripciones más largas, y el número de URL externas (en cuadratura) aumenta significativamente la longitud de la descripción.
+
+## X.posts depende de X.followers
+
+**Segimos investigar**,vamos a variable X.posts depende de X.followers.
+
+```{r}
+lm_model1 <- lm(X.posts ~ X.followers,
+                 data = datatrain)
+summary(lm_model1)
+
+ggplot(datatrain, aes(x = datatrain$X.posts, y = X.followers)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Regressión X.followers ~ X.posts",
+       x = "nums.length.username",
+       y = "X.posts")
+```
+
+Nuestro modelo explica solo 10 % de casos. Tenemos que mejorarlo. Este modelo pretende predecir el número de publicaciones (X.publicaciones) a partir del número de seguidores (X.seguidores), el número de personas a las que sigue el usuario (X.seguidores) y el cuadrado de la variable de falsificación (I(falsificación\^2)).
+
+```{r}
+lm_model1 <- lm(X.posts ~ X.followers+X.follows+I(fake^2),
+                 data = datatrain)
+summary(lm_model1)
+```
+
+El modelo sugiere que mientras X.followers e I(fake\^2) influyen significativamente en X.posts, X.follows no parece ser un predictor significativo en este caso. El valor R-cuadrado relativamente bajo indica que hay otros factores no incluidos en este modelo que explican una mayor parte de la varianza en X.posts.
+
+```{r}
+lm_model1 <- lm(X.posts ~ X.followers+I(fake^2),
+                 data = datatrain)
+summary(lm_model1)
+
+```
+
+**Interpretación**
+
+El modelo sugiere que tanto X.followers como I(fake\^2) influyen significativamente en X.posts. El valor R-cuadrado relativamente bajo indica que hay otros factores no incluidos en este modelo que explican una mayor parte de la varianza en X.posts.
+
+### Conclusions
+
+La eliminación de X.follows no alteró significativamente el valor R-cuadrado, lo que indica que X.follows no era un predictor sustancial en el modelo original. El R-cuadrado ajustado y el error estándar residual son casi idénticos a los del modelo anterior, lo que sugiere una ligera mejora en la simplicidad del modelo sin perder poder explicativo.

@@ -1,0 +1,261 @@
+---
+title: "Time series"
+---
+
+## Complemento EDA
+
+```{r}
+library(ggfortify)
+library(ggplot2)
+library(dplyr)
+library(ggstats)
+library(lubridate)
+
+library(TTR)
+library(forecast)
+library(tseries)
+
+library(plotly)
+library(ggfortify)
+
+library(gridExtra)
+library(readr)
+library(here)
+library(docstring)
+library(timetk)
+```
+
+En esta sección realizaremos un análisis de series temporales. En un conjunto de fechas dado, no se da ninguna variable temporal. Por lo tanto, interpretaremos el tiempo en la forma que definimos una variable temporal basada en el número de follows, cuantos más seguidores tenga alguien más tiempo estará en la plataforma. Independientemente de que tenga una cuenta privada o una cuenta falsa, porque un follow puede tener lugar desde tal o cual cuenta sin ningún obstáculo.
+
+```{r}
+data<-read.csv("dataTs.csv", sep = ",")
+```
+
+```{r}
+ts.data <- ts(data$fake, frequency=12, start=c(2014,1))
+ts.data
+ts_tbl <- tk_tbl(ts.data, rename_index = "date")
+```
+
+```{r}
+plot_time_series(
+  .data = ts_tbl,
+  .date_var = ts_tbl$date,
+  .value = ts_tbl$value
+)
+
+```
+
+```{r}
+plot.ts(ts.data, xlab="Año", ylab="Cantidad", main="Cantidad de las cuentas falsas")
+```
+
+## Comprobación de la estacionariedad
+
+```{r}
+Box.test(ts.data, lag = 20, type = 'Ljung-Box')
+```
+
+El pequeño valor p (inferior a 2,2e-16) indica que podemos rechazar la hipótesis nula de la prueba Box-Ljung. La hipótesis nula suele suponer que la serie de datos es ruido blanco, lo que significa que no hay dependencia serial ni correlación entre las observaciones en distintos momentos.
+
+Por lo tanto, basándonos en el resultado de esta prueba, podemos concluir que existe una dependencia serial significativa en los datos 'ts.data'. En otras palabras, los valores de la serie temporal no son aleatorios y parecen estar influidos por valores pasados. \### ADF La prueba ADF se utiliza para determinar si una serie temporal es estacionaria o no estacionaria. La estacionariedad es un supuesto fundamental en la modelización de series temporales porque muchos métodos de series temporales, como ARIMA, requieren que los datos sean estacionarios.
+
+Cómo funciona: La prueba ADF compara los datos observados con la hipótesis nula de que los datos tienen una raíz unitaria (no estacionarios). Comprueba si la diferenciación de los datos (eliminación de tendencias) los hace estacionarios.
+
+Interpretación: La prueba ADF proporciona un estadístico de prueba y un valor p. Si el valor p es inferior a un nivel de significación elegido (por ejemplo, 0,1), puede rechazar la hipótesis nula y concluir que los datos son estacionarios. Si el valor p es mayor, es posible que no pueda concluir que los datos son estacionarios.
+
+```{r}
+adf.test(ts.data)
+```
+
+Podemos ver que nuestro valor p para la prueba ADF es mayor que 0.05, por lo que haremos una inspección visual adicional. Pero sabemos que lo más probable es que tengamos que diferenciar nuestras series temporales para la estacionariedad.
+
+```{r}
+ts.data.dc <- decompose(ts.data)
+plot(ts.data.dc)
+```
+
+**Seasonality**: La serie temporal muestra claros patrones seasonal, con picos y valles correspondientes a épocas concretas del año. El componente estacional es relativamente constante a lo largo de los años.
+
+**Tendencia**: La serie temporal muestra una tendencia gradual al alza a lo largo del tiempo, lo que indica un crecimiento o aumento general de los valores. El componente de tendencia es relativamente suave y persistente.
+
+**Fluctuaciones aleatorias**: La serie temporal presenta fluctuaciones aleatorias en torno al patrón estacional y la tendencia. Estas fluctuaciones están representadas por el componente aleatorio y reflejan la naturaleza impredecible de algunos de los puntos de datos.
+
+### Seasonal plot
+
+Investigaremos si había suficiente **stationarity** para ajustar nuestro objeto de series temporales a la **stationar**. El gráfico estacional puede proporcionar una buena visualización de la estacionalidad de los objetos de series temporales.
+
+```{r}
+ggseasonplot(ts.data, year.labels = TRUE)
+```
+
+Un gráfico seasonal de los datos de ts muestra que el número de creaciones de cuentas falsas está relacionado con la época del año. La mayoría se crean en otoño y el menor número en verano. Este patrón se repite de año en año
+
+```{r}
+ggseasonplot(ts.data, polar=TRUE) +
+  ylab("fake") +
+  ggtitle("Polar seasonal plot: fake")
+```
+
+```{r}
+ggsubseriesplot(ts.data) +
+  ylab("N. fake") +
+  ggtitle("Seasonal subseries plot: Fake accounts")
+```
+
+El gráfico del número de cuentas falsas muestra que el número de cuentas falsas en las redes sociales está estrechamente relacionado con la época del año. El mayor número de cuentas falsas se crea en otoño/invierno y el menor en verano. Este patrón se repite de año en año.
+
+```{r}
+ts.n1.comp.aj <- ts.data - ts.data.dc$seasonal
+plot(ts.n1.comp.aj)
+```
+
+## Model estimation
+
+```{r}
+ts_tbl %>%
+  plot_acf_diagnostics(date, value, .lags = 24)
+```
+
+### Making it stationary
+
+```{r}
+tsDiff <- diff(ts.data)
+tsDiff_tbl <- tk_tbl(tsDiff, rename_index = "date")
+plot_time_series(tsDiff_tbl, .value=value, .date_var = date)
+
+```
+
+Este gráfico sugiere que nuestros datos de trabajo son stational. Queremos confirmar esto ejecutando un diagnóstico ACF y PACF sobre estos datos para averiguar si podemos proceder a estimar un modelo.
+
+### Comprobación de STATIONARITY
+
+```{r}
+Box.test(tsDiff, lag = 20, type = 'Ljung-Box')
+adf.test(tsDiff)
+```
+
+**Augmented Dickey-Fuller Test** dice que series tienen **STATIONARITY**.
+
+```{r}
+tsDiff_tbl %>%
+  plot_acf_diagnostics(date, value, .lags = 24)
+```
+
+```{r}
+ggseasonplot(tsDiff,year.labels = TRUE)
+```
+
+El componente de *seasonality* de la serie tiene un fuerte patrón *seasonal*, con picos en primavera y otoño y valles en verano e invierno. Esto significa que el valor de la serie es mayor en primavera y otoño y menor en verano.
+
+## Forecasting
+
+### ARIMA model
+
+Nuestro objetivo es encontrar el mejor modelo- `auto.arima()`
+
+```{r}
+fit_arima <- auto.arima(tsDiff, seasonal = TRUE)
+summary(fit_arima)
+```
+
+`auto.arima()` propone que podemos usar ARIMA(0,0,1) with zero mean para obtener mejor modelo possible.
+
+```{r}
+autoplot(forecast(fit_arima),approximation=TRUE)
+```
+
+### Residuals
+
+```{r}
+ggplot(data=fit_arima, aes(residuals(fit_arima))) +
+	geom_histogram(aes(y =..density..),
+	col="green", fill="white") +
+geom_density(col=1) +
+theme(panel.background = element_rect(fill = "gray98"),
+	panel.grid.minor = element_blank(),
+	axis.line   = element_line(colour="gray"),
+	axis.line.x = element_line(colour="gray")) +
+ggtitle("Plot of fake ARIMA Model Residuals")
+
+```
+
+El gráfico muestra que los residuos tienen una distribución aproximadamente normal, con una media de cero y una desviación típica de 0,1 aproximadamente. Esto sugiere que el modelo se ajusta bien a los datos. Los residuos están dispersos en torno a la línea horizontal en cero, lo que indica que las predicciones del modelo se aproximan en general a los valores reales.
+
+```{r}
+tsdisplay(residuals(fit_arima), main='(0,0,1) Model Residuals')
+```
+
+hasta Lag = 2, ambas gráficas son iguales, por lo que los valores p o q de ARIMA(p,d,q) debe ser 2
+
+```{r}
+fit_arima2 <- arima(tsDiff, order=c(2,0,2))
+summary(fit_arima2)
+```
+
+```{r}
+autoplot(forecast(fit_arima2),approximation=TRUE)
+```
+
+-   La tendencia general de la línea de previsión parece ligeramente ascendente, lo que sugiere que el modelo predice un aumento de los valores de la serie temporal a lo largo del tiempo.
+
+-   La amplitud de los intervalos de predicción varía a lo largo de la línea de previsión. Esto indica que el nivel de incertidumbre en las predicciones no es uniforme en todos los puntos temporales.
+
+-   La presencia de intervalos de predicción permite a los usuarios visualizar la gama de posibles valores futuros y evaluar la incertidumbre asociada.
+
+\*\* Esperamos que la creciente cantidad de cuentas falsas en 2020\*\*
+
+### HotWinters
+
+En R, podemos ajustar un modelo predictivo simple de suavizado exponencial utilizando la función HoltWinters.
+
+```{r}
+fit_hw <- HoltWinters(ts.data,alpha=0.25,beta = FALSE)
+fit_hw
+plot(fit_hw)
+```
+
+```{r}
+plot(forecast(fit_hw))
+```
+
+Predicción es bastante similar a lo ocurrido en los años anteriores
+
+## Neural Networks
+
+Las redes neuronales son un tipo de algoritmo de aprendizaje automático inspirado en la estructura y el funcionamiento del cerebro humano. Están formadas por capas interconectadas de nodos, o neuronas artificiales, que procesan y transmiten información. Mediante un proceso llamado aprendizaje, las redes neuronales son capaces de identificar patrones y hacer predicciones.
+
+```{r}
+lambda <- BoxCox.lambda(ts.data)
+fit_net <- nnetar(ts.data, lambda = lambda) # Using BC lambda
+fit_net <- forecast(fit_net, h = 36, PI = TRUE)
+fit_net
+```
+
+```{r}
+autoplot(forecast(fit_net), 
+	forc_name = 'Neural Networks')
+```
+
+Predicción es super similar a lo ocurrido en los años anteriores
+
+## Seasonal naïve method
+
+```{r}
+fit_sn <- snaive(ts.data, 10)
+plot(fit_sn)
+```
+
+## Conclusions
+
+```{r}
+round(accuracy(fit_sn), 3)
+round(accuracy(fit_net), 3)
+round(accuracy(fit_arima2), 3)
+```
+
+-   Modelo Arima: Este modelo tiene los errores más altos en todas las métricas (ME, RMSE, MAE) en el conjunto de entrenamiento. Sobreestima significativamente (ME positivo) y tiene grandes variaciones en los errores (RMSE alto). Podría no ser una opción adecuada para la previsión.
+-   Modelo Redes: Este modelo funciona significativamente mejor que el modelo Arima. Tiene errores muy bajos (ME, RMSE, MAE) en el conjunto de entrenamiento, lo que sugiere un buen ajuste a los datos de entrenamiento. Sin embargo, algunas métricas como MPE y MAPE no son concluyentes (Inf) debido a posibles problemas con la escala de datos.
+-   Modelo Seasonal naive: Este modelo muestra un ME negativo, lo que indica una subestimación en el conjunto de entrenamiento. El RMSE es moderado en comparación con el modelo Arima, pero superior al modelo Redes. El MASE es relativamente alto, lo que sugiere margen de mejora. En general, su rendimiento se sitúa entre el modelo Arima y el modelo Networks.
+
+Basándose en el rendimiento del conjunto de entrenamiento, el modelo redes parece ser la mejor opción.

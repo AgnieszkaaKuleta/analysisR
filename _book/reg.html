@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Detección de cuentas fake en Instragram - 5&nbsp; Regressión</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./ts.html" rel="next">
+<link href="./fcar.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar docked">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./reg.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regressión</span></a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Detección de cuentas fake en Instragram</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./eda.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Análisis exploratorio de datos</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reglas.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Apriori-Reglas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./fcar.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">fcaR</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./reg.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regressión</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./ts.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Time series</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">References</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#complemento-eda" id="toc-complemento-eda" class="nav-link active" data-scroll-target="#complemento-eda"><span class="header-section-number">5.1</span> Complemento EDA</a>
+  <ul class="collapse">
+  <li><a href="#data-correlations" id="toc-data-correlations" class="nav-link" data-scroll-target="#data-correlations"><span class="header-section-number">5.1.1</span> Data correlations</a></li>
+  </ul></li>
+  <li><a href="#de-qué-depende-que-una-cuenta-sea-falsa" id="toc-de-qué-depende-que-una-cuenta-sea-falsa" class="nav-link" data-scroll-target="#de-qué-depende-que-una-cuenta-sea-falsa"><span class="header-section-number">5.2</span> ¿De qué depende que una cuenta sea falsa?</a>
+  <ul class="collapse">
+  <li><a href="#con-qué-variables-hay-mayor-relación" id="toc-con-qué-variables-hay-mayor-relación" class="nav-link" data-scroll-target="#con-qué-variables-hay-mayor-relación"><span class="header-section-number">5.2.1</span> ¿Con qué variables hay mayor relación?</a></li>
+  <li><a href="#modelos-multiple" id="toc-modelos-multiple" class="nav-link" data-scroll-target="#modelos-multiple"><span class="header-section-number">5.2.2</span> Modelos multiple</a></li>
+  <li><a href="#poly_model" id="toc-poly_model" class="nav-link" data-scroll-target="#poly_model"><span class="header-section-number">5.2.3</span> Poly_model</a></li>
+  </ul></li>
+  <li><a href="#de-qué-depende-la-longitud-de-la-descripción" id="toc-de-qué-depende-la-longitud-de-la-descripción" class="nav-link" data-scroll-target="#de-qué-depende-la-longitud-de-la-descripción"><span class="header-section-number">5.3</span> ¿De qué depende la longitud de la descripción?</a>
+  <ul class="collapse">
+  <li><a href="#conclusions" id="toc-conclusions" class="nav-link" data-scroll-target="#conclusions"><span class="header-section-number">5.3.1</span> Conclusions</a></li>
+  </ul></li>
+  <li><a href="#x.posts-depende-de-x.followers" id="toc-x.posts-depende-de-x.followers" class="nav-link" data-scroll-target="#x.posts-depende-de-x.followers"><span class="header-section-number">5.4</span> X.posts depende de X.followers</a>
+  <ul class="collapse">
+  <li><a href="#conclusions-1" id="toc-conclusions-1" class="nav-link" data-scroll-target="#conclusions-1"><span class="header-section-number">5.4.1</span> Conclusions</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Regressión</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="complemento-eda" class="level2" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="complemento-eda"><span class="header-section-number">5.1</span> Complemento EDA</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'ggplot2' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(GGally)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'GGally' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'GGally':
+  method from   
+  +.gg   ggplot2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(corrplot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>corrplot 0.92 loaded</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(forecast)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'forecast' was built under R version 4.3.3</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Registered S3 method overwritten by 'quantmod':
+  method            from
+  as.zoo.data.frame zoo </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>datatrain<span class="ot">&lt;-</span><span class="fu">read.csv</span>(<span class="st">"dataAeda.csv"</span>, <span class="at">sep =</span> <span class="st">","</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="data-correlations" class="level3" data-number="5.1.1">
+<h3 data-number="5.1.1" class="anchored" data-anchor-id="data-correlations"><span class="header-section-number">5.1.1</span> Data correlations</h3>
+<p>Ya que tenomos los datos preparados en nuestro proximo paso vamos a ver correleaciones entre variables.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>correlation_matrix <span class="ot">&lt;-</span> <span class="fu">cor</span>(datatrain)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">corrplot</span>(correlation_matrix, <span class="at">method =</span> <span class="st">"color"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-2-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li><strong>La foto</strong> de perfil tiene una fuerte correlación negativa con <strong>las cuentas falsas</strong>, lo que indica que no es probable que las cuentas falsas tengan fotos de perfil, lo que tiene sentido teniendo en cuenta el poco esfuerzo que uno puede haber puesto para crear la cuenta.</li>
+<li>Se han observado fuertes correlaciones negativas con <strong>la longitud de la descripción</strong> y <strong>las URL</strong> externas seguidas de palabras de nombre completo</li>
+<li>Se observa una fuerte correlación con <strong>la longitud numérica del nombre de usuario</strong>, lo que indica que <strong>las cuentas falsas</strong> suelen tener caracteres numéricos, al igual que el nombre completo. Existe una correlación positiva entre el nombre y el nombre de usuario, lo que indica que puede tratarse de una cuenta falsa.</li>
+</ul>
+</section>
+</section>
+<section id="de-qué-depende-que-una-cuenta-sea-falsa" class="level2" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="de-qué-depende-que-una-cuenta-sea-falsa"><span class="header-section-number">5.2</span> ¿De qué depende que una cuenta sea falsa?</h2>
+<section id="con-qué-variables-hay-mayor-relación" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="con-qué-variables-hay-mayor-relación"><span class="header-section-number">5.2.1</span> ¿Con qué variables hay mayor relación?</h3>
+<p>Intentar un modelo de regresión lineal entre <strong>fake</strong> y el resto de variables:</p>
+<p>Del gráfico de correlación observamos que las variables: -profile pic (correlación negativa) -nums.lenght.username (correlación positiva) -descripción.longitud (correlación negativa) influyen significativamente en la variable fake. El regresivo hará que el análisis exacto de la exacta y por separado.</p>
+<p>Vamos a hacer tambien un modelo para asegurarnos.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span> .)</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>m1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ ., data = datatrain)
+
+Coefficients:
+         (Intercept)           profile.pic  nums.length.username  
+           7.930e-01            -4.371e-01             8.076e-01  
+      fullname.words  nums.length.fullname        name..username  
+          -3.348e-02            -2.949e-02             2.243e-01  
+  description.length          external.URL               private  
+          -1.505e-03            -1.554e-01            -1.029e-02  
+             X.posts           X.followers             X.follows  
+          -9.080e-05            -1.006e-08            -1.858e-05  </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ ., data = datatrain)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.73002 -0.23798 -0.06716  0.24042  1.00869 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           7.930e-01  3.816e-02  20.780  &lt; 2e-16 ***
+profile.pic          -4.371e-01  3.365e-02 -12.992  &lt; 2e-16 ***
+nums.length.username  8.076e-01  7.655e-02  10.549  &lt; 2e-16 ***
+fullname.words       -3.348e-02  1.335e-02  -2.507 0.012445 *  
+nums.length.fullname -2.949e-02  1.218e-01  -0.242 0.808807    
+name..username        2.243e-01  7.654e-02   2.931 0.003519 ** 
+description.length   -1.505e-03  4.349e-04  -3.460 0.000582 ***
+external.URL         -1.554e-01  4.811e-02  -3.229 0.001314 ** 
+private              -1.029e-02  2.851e-02  -0.361 0.718273    
+X.posts              -9.080e-05  3.575e-05  -2.539 0.011372 *  
+X.followers          -1.006e-08  1.541e-08  -0.653 0.514119    
+X.follows            -1.858e-05  1.501e-05  -1.238 0.216208    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3171 on 562 degrees of freedom
+Multiple R-squared:  0.6063,    Adjusted R-squared:  0.5986 
+F-statistic: 78.68 on 11 and 562 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Sobre la base de los resultados anteriores, las variables que merece la pena seguir estudiando por su significación estadística son:</p>
+<ul>
+<li>profile.pic (correlación negativa)</li>
+<li>nums.length.username(correlación positiva)</li>
+<li>fullname.words(correlación negativa)</li>
+<li>name..username(correlación positiva)</li>
+<li>description.length(correlación negativa)</li>
+<li>URL.extern(correlación negativa)</li>
+<li>X.posts(correlación negativa) Las variables nums.length.fullname, private, X.followers y X.follows no merecen mayor consideración, ya que sus valores p indican que no son estadísticamente significativas en este modelo.</li>
+</ul>
+<p>Además, podemos observar que el modelo tiene un R-cuadrado múltiple de 0,6063, lo que significa que aproximadamente el 60,63% de la variación de la variable dependiente se explica por las variables independientes del modelo.</p>
+<p>Vamos a encontrar el modelo mas explicativo/adecuado. Empezamos con una solo variable.</p>
+<section id="profil.foto" class="level4" data-number="5.2.1.1">
+<h4 data-number="5.2.1.1" class="anchored" data-anchor-id="profil.foto"><span class="header-section-number">5.2.1.1</span> profil.foto</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span>profile.pic)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ profile.pic, data = datatrain)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.98837 -0.29104 -0.13971  0.01163  0.70896 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  0.98837    0.02938   33.64   &lt;2e-16 ***
+profile.pic -0.69733    0.03511  -19.86   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3853 on 572 degrees of freedom
+Multiple R-squared:  0.4082,    Adjusted R-squared:  0.4072 
+F-statistic: 394.5 on 1 and 572 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> profile.pic, <span class="at">y =</span> fake)) <span class="sc">+</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ profile.pic"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"profile.pic"</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"fake"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>El modelo explica el 40,82% de la varianza de la variable “falso”, y la relación entre “foto.perfil” y “falso” es estadísticamente significativa (valor p &lt; 2,2e-16). Esto sugiere que el modelo capta una asociación significativa entre la foto de perfil y la probabilidad de ser falso.</p>
+</section>
+<section id="nums.length.username" class="level4" data-number="5.2.1.2">
+<h4 data-number="5.2.1.2" class="anchored" data-anchor-id="nums.length.username"><span class="header-section-number">5.2.1.2</span> nums.length.username</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span>nums.length.username)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ nums.length.username, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.8984 -0.2741 -0.2741  0.3097  0.7259 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           0.27414    0.02133   12.85   &lt;2e-16 ***
+nums.length.username  1.38716    0.07981   17.38   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4052 on 572 degrees of freedom
+Multiple R-squared:  0.3456,    Adjusted R-squared:  0.3444 
+F-statistic: 302.1 on 1 and 572 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> nums.length.username, <span class="at">y =</span> fake)) <span class="sc">+</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ nums.length.username"</span>,</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"nums.length.username"</span>,</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"fake"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Basado en la salida, este modelo de regresión lineal analiza cómo la longitud del nombre de usuario (nums.length.username) afecta a una variable binaria llamada “fake”. El modelo explica el 34,56% de la varianza en la variable “fake”. Existe una relación estadísticamente significativa (p-valor &lt; 2.2e-16) entre la longitud del nombre de usuario y ser clasificado como “fake”. En otras palabras, los nombres de usuario con una determinada longitud tienen más probabilidades de estar asociados con cuentas falsas.</p>
+</section>
+<section id="fullname.words" class="level4" data-number="5.2.1.3">
+<h4 data-number="5.2.1.3" class="anchored" data-anchor-id="fullname.words"><span class="header-section-number">5.2.1.3</span> fullname.words</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span>fullname.words)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ fullname.words, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.7064 -0.4236  0.2936  0.4350  1.0005 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)     0.70641    0.03411   20.71  &lt; 2e-16 ***
+fullname.words -0.14138    0.01895   -7.46 3.23e-13 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4782 on 572 degrees of freedom
+Multiple R-squared:  0.08867,   Adjusted R-squared:  0.08708 
+F-statistic: 55.65 on 1 and 572 DF,  p-value: 3.227e-13</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> fullname.words, <span class="at">y =</span> fake)) <span class="sc">+</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ fullname.words"</span>,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"fullname.words"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"fake"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>A partir de los resultados, este modelo de regresión lineal examina la relación entre el número de palabras del nombre completo de un usuario (nombre.completo.palabras) y una variable binaria denominada “falso”. El modelo sólo explica el 8,87% de la varianza de la variable “falso”. Sin embargo, existe una relación estadísticamente significativa (valor p &lt; 3,23e-13) entre el número de palabras del nombre completo y la clasificación como “falso”. Esto sugiere que los usuarios con nombres completos que contienen un número específico de palabras podrían ser más propensos a ser cuentas falsas, pero el poder explicativo de este modelo es relativamente bajo.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span>name..username)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ name..username, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.9500 -0.4838 -0.2169  0.5162  0.5162 
+
+Coefficients:
+               Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)     0.48375    0.02097  23.073  &lt; 2e-16 ***
+name..username  0.46625    0.11232   4.151 3.82e-05 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4935 on 572 degrees of freedom
+Multiple R-squared:  0.02924,   Adjusted R-squared:  0.02754 
+F-statistic: 17.23 on 1 and 572 DF,  p-value: 3.816e-05</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> name..username, <span class="at">y =</span> fake)) <span class="sc">+</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ name..username"</span>,</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"name..username"</span>,</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"fake"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Este modelo sugiere una relación positiva estadísticamente significativa, aunque débil, entre la variable combinada nombre-nombre de usuario y la probabilidad de que una cuenta sea falsa. Sin embargo, los bajos valores de R-cuadrado indican que probablemente otros factores desempeñan un papel más importante a la hora de determinar si una cuenta es falsa.</p>
+</section>
+<section id="description.length" class="level4" data-number="5.2.1.4">
+<h4 data-number="5.2.1.4" class="anchored" data-anchor-id="description.length"><span class="header-section-number">5.2.1.4</span> description.length</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span>description.length)</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ description.length, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.6379 -0.4733  0.3193  0.3621  1.2704 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)         0.6378780  0.0216494   29.46   &lt;2e-16 ***
+description.length -0.0060958  0.0004923  -12.38   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4448 on 572 degrees of freedom
+Multiple R-squared:  0.2114,    Adjusted R-squared:   0.21 
+F-statistic: 153.3 on 1 and 572 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> description.length, <span class="at">y =</span> fake)) <span class="sc">+</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ description.length"</span>,</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"description.length"</span>,</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"fake"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Este modelo muestra una relación negativa y estadísticamente significativa entre la longitud de la descripción de una cuenta y la probabilidad de que sea falsa. Las descripciones más largas se asocian a una menor probabilidad prevista de ser falsa. Además, el modelo explica una parte notable de la varianza de “falso” en comparación con las características anteriores. Esto sugiere que la longitud de la descripción puede ser un indicador útil para identificar cuentas falsas.</p>
+</section>
+<section id="external.url" class="level4" data-number="5.2.1.5">
+<h4 data-number="5.2.1.5" class="anchored" data-anchor-id="external.url"><span class="header-section-number">5.2.1.5</span> external.URL</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span>external.URL)</span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ external.URL, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.5661 -0.5661  0.2170  0.4339  0.4339 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   0.56607    0.02072  27.317   &lt;2e-16 ***
+external.URL -0.56607    0.06065  -9.333   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4666 on 572 degrees of freedom
+Multiple R-squared:  0.1321,    Adjusted R-squared:  0.1306 
+F-statistic:  87.1 on 1 and 572 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> external.URL, <span class="at">y =</span> fake)) <span class="sc">+</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ external.URL"</span>,</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"external.URL"</span>,</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"fake"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Este modelo muestra una relación negativa y estadísticamente significativa entre la presencia de una URL externa en la descripción de una cuenta y la probabilidad de que sea falsa. Las cuentas con URL externas se asocian a una menor probabilidad prevista de ser falsas. Esto sugiere que la presencia de una URL externa puede ser otro indicador útil para identificar cuentas falsas.</p>
+<p>Es importante tener en cuenta que algunas cuentas legítimas también pueden incluir URL externas en sus descripciones. Un modelo más completo podría combinar estas características con otras para mejorar la precisión de la detección de cuentas falsas.</p>
+</section>
+<section id="x.posts" class="level4" data-number="5.2.1.6">
+<h4 data-number="5.2.1.6" class="anchored" data-anchor-id="x.posts"><span class="header-section-number">5.2.1.6</span> X.posts</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>           fake<span class="sc">~</span>X.posts)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(m1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ X.posts, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-0.5327 -0.5102  0.4673  0.4673  1.7157 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  5.327e-01  2.098e-02   25.39  &lt; 2e-16 ***
+X.posts     -3.043e-04  5.038e-05   -6.04 2.78e-09 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.4856 on 572 degrees of freedom
+Multiple R-squared:  0.05995,   Adjusted R-squared:  0.05831 
+F-statistic: 36.48 on 1 and 572 DF,  p-value: 2.778e-09</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> datatrain<span class="sc">$</span>X.posts, <span class="at">y =</span> fake)) <span class="sc">+</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ X.posts"</span>,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"X.posts"</span>,</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"fake"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Use of `datatrain$X.posts` is discouraged.
+ℹ Use `X.posts` instead.
+Use of `datatrain$X.posts` is discouraged.
+ℹ Use `X.posts` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Este modelo muestra una relación negativa y estadísticamente significativa entre la presencia de una URL externa en la descripción de una cuenta y la probabilidad de que sea falsa. Las cuentas con URL externas se asocian a una menor probabilidad prevista de ser falsas. Esto sugiere que la presencia de una URL externa puede ser otro indicador útil para identificar cuentas falsas.</p>
+<p>Es importante tener en cuenta que algunas cuentas legítimas también pueden incluir URL externas en sus descripciones. Un modelo más completo podría combinar estas características con otras para mejorar la precisión de la detección de cuentas falsas.</p>
+</section>
+</section>
+<section id="modelos-multiple" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="modelos-multiple"><span class="header-section-number">5.2.2</span> Modelos multiple</h3>
+<p>Hora, vamos a intertar a hacer modelo con variables multiples.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(fake <span class="sc">~</span> name..username <span class="sc">+</span> profile.pic<span class="sc">+</span>nums.length.username <span class="sc">+</span> fullname.words<span class="sc">+</span>description.length<span class="sc">+</span>external.URL<span class="sc">+</span>X.posts,</span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ name..username + profile.pic + nums.length.username + 
+    fullname.words + description.length + external.URL + X.posts, 
+    data = datatrain)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.74934 -0.24308 -0.05888  0.23323  1.02681 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           7.840e-01  3.596e-02  21.799  &lt; 2e-16 ***
+name..username        2.155e-01  7.276e-02   2.962  0.00319 ** 
+profile.pic          -4.438e-01  3.283e-02 -13.519  &lt; 2e-16 ***
+nums.length.username  8.091e-01  6.964e-02  11.619  &lt; 2e-16 ***
+fullname.words       -3.344e-02  1.328e-02  -2.518  0.01209 *  
+description.length   -1.547e-03  4.291e-04  -3.605  0.00034 ***
+external.URL         -1.537e-01  4.757e-02  -3.232  0.00130 ** 
+X.posts              -9.909e-05  3.374e-05  -2.937  0.00345 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3165 on 566 degrees of freedom
+Multiple R-squared:  0.6049,    Adjusted R-squared:    0.6 
+F-statistic: 123.8 on 7 and 566 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The model explains approximately 60% of the variance in the dependent variable fake, as indicated by the R-squared value. All predictors are statistically significant, suggesting they contribute meaningfully to predicting whether a profile is fake.</p>
+<p>Tambien podemos hacer cambios en este modelo para intentar a mejorarlo podemosmos eliminar variables X.posts, name..username, fullname.words.</p>
+<p><strong>Nuestro objetivo es generar un modelo mejoorado.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(fake <span class="sc">~</span> profile.pic<span class="sc">+</span>nums.length.username <span class="sc">+</span> description.length<span class="sc">+</span>external.URL<span class="sc">+</span>X.posts,</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ profile.pic + nums.length.username + description.length + 
+    external.URL + X.posts, data = datatrain)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.71833 -0.25180 -0.07039  0.24417  0.96593 
+
+Coefficients:
+                       Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)           7.558e-01  3.153e-02  23.970  &lt; 2e-16 ***
+profile.pic          -4.603e-01  3.297e-02 -13.964  &lt; 2e-16 ***
+nums.length.username  8.307e-01  7.002e-02  11.863  &lt; 2e-16 ***
+description.length   -1.723e-03  4.297e-04  -4.009  6.9e-05 ***
+external.URL         -1.606e-01  4.807e-02  -3.340 0.000892 ***
+X.posts              -1.021e-04  3.414e-05  -2.991 0.002906 ** 
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.3204 on 568 degrees of freedom
+Multiple R-squared:  0.5937,    Adjusted R-squared:  0.5902 
+F-statistic:   166 on 5 and 568 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>El modelo explica aproximadamente el 57,79% de la varianza de la variable dependiente falsificación, como indica el valor R-cuadrado. Todos los predictores son estadísticamente significativos, lo que sugiere que contribuyen significativamente a predecir si un perfil es falso. Este modelo más simple sigue manteniendo un alto poder explicativo con menos variables, lo que puede ser beneficioso para la interpretabilidad y la reducción de la multicolinealidad.</p>
+</section>
+<section id="poly_model" class="level3" data-number="5.2.3">
+<h3 data-number="5.2.3" class="anchored" data-anchor-id="poly_model"><span class="header-section-number">5.2.3</span> Poly_model</h3>
+<p>Mentaniemos los variables de ultimo modelo…</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>lmejor <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">formula =</span> fake <span class="sc">~</span> nums.length.username <span class="sc">*</span> <span class="fu">I</span>(profile.pic <span class="sc">^</span><span class="dv">2</span>), <span class="at">data =</span> datatrain)</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lmejor)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = fake ~ nums.length.username * I(profile.pic^2), 
+    data = datatrain)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.96994 -0.12010 -0.12010  0.02908  0.87990 
+
+Coefficients:
+                                      Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                            0.96994    0.03739  25.940   &lt;2e-16 ***
+nums.length.username                   0.06507    0.10338   0.629    0.529    
+I(profile.pic^2)                      -0.84985    0.04141 -20.522   &lt;2e-16 ***
+nums.length.username:I(profile.pic^2)  1.47060    0.13257  11.093   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.305 on 570 degrees of freedom
+Multiple R-squared:  0.6305,    Adjusted R-squared:  0.6285 
+F-statistic: 324.2 on 3 and 570 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(lmejor)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-15-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-15-4.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Visto el grafo con residuals, se puede decir que el model es bastante bien <em>fitted</em>, espencialmente a la derecha del grafo.sss</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Replace these values with your actual coefficients</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>coef_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">feature =</span> <span class="fu">c</span>(<span class="st">"(Intercept)"</span>, <span class="st">"nums.length.username"</span>, <span class="st">"I(profile.pic^2)"</span>, <span class="st">"nums.length.username:I(profile.pic^2)"</span>),</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(<span class="fl">0.96994</span>, <span class="fl">0.06507</span>, <span class="sc">-</span><span class="fl">0.84985</span>, <span class="fl">1.47060</span>)</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb57-7"><a href="#cb57-7" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(coef_data, <span class="fu">aes</span>(<span class="at">x =</span> feature, <span class="at">y =</span> estimate, <span class="at">fill=</span><span class="st">"red"</span>)) <span class="sc">+</span></span>
+<span id="cb57-8"><a href="#cb57-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span>  <span class="co"># Can also use geom_point() for scatter plot</span></span>
+<span id="cb57-9"><a href="#cb57-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Model Coefficients (Fake ~ Features)"</span>,</span>
+<span id="cb57-10"><a href="#cb57-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Feature"</span>,</span>
+<span id="cb57-11"><a href="#cb57-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Coefficient Value"</span>) <span class="sc">+</span></span>
+<span id="cb57-12"><a href="#cb57-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>() <span class="sc">+</span></span>
+<span id="cb57-13"><a href="#cb57-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()  <span class="co"># Optional: Flips x and y axis for better readability</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li><strong>(Intercepción)</strong>: Representa la probabilidad media prevista de ser falsa para las cuentas con nombres de usuario de longitud cero y sin foto de perfil (probablemente poco realista). El intercepto es estadísticamente significativo (valor p &lt; 2e-16).</li>
+<li><strong>nums.length.username:</strong> El coeficiente (0,06507) es positivo pero no significativo (valor p = 0,529). Por sí sola, la longitud del nombre de usuario parece tener una débil asociación positiva con ser falso, pero no es estadísticamente relevante aquí.</li>
+<li><strong>I(perfil.pic^2)</strong>: El coeficiente (-0,84985) es negativo y muy significativo (valor p &lt; 2e-16). Esto sugiere que las cuentas con fotos de perfil (porque el término al cuadrado sería 1) tienen una menor probabilidad prevista de ser falsas en comparación con las cuentas sin foto (el término al cuadrado sería 0).</li>
+<li><strong>nums.length.username:I(profile.pic^2)</strong>: Este coeficiente (1,47060) es positivo y muy significativo (valor p &lt; 2e-16). Se trata del término de interacción. Indica que la relación entre la longitud del nombre de usuario y ser falso es positiva y más fuerte para las cuentas con fotos de perfil (donde el término al cuadrado es 1) en comparación con las que no las tienen (donde el término al cuadrado es 0).</li>
+</ul>
+<p>Este modelo con términos de interacción revela una relación más interesante entre la longitud del nombre de usuario, la foto de perfil y ser falso:</p>
+<p>Las cuentas con foto de perfil suelen tener menos probabilidades de ser falsas. El efecto de la longitud del nombre de usuario sobre la falsedad es mayor en las cuentas con foto de perfil. Un nombre de usuario más largo aumenta más la probabilidad de ser falso en las cuentas con foto de perfil que en las que no la tienen. Esto sugiere que las cuentas con fotos de perfil y nombres de usuario más largos podrían ser incluso más sospechosas que las cuentas con sólo una de esas características. Esto subraya la importancia de tener en cuenta varias características a la vez para detectar mejor las cuentas falsas.</p>
+</section>
+</section>
+<section id="de-qué-depende-la-longitud-de-la-descripción" class="level2" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="de-qué-depende-la-longitud-de-la-descripción"><span class="header-section-number">5.3</span> ¿De qué depende la longitud de la descripción?</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(<span class="at">data =</span> datatrain, <span class="at">formula =</span> </span>
+<span id="cb58-2"><a href="#cb58-2" aria-hidden="true" tabindex="-1"></a>           description.length<span class="sc">~</span> .)</span>
+<span id="cb58-3"><a href="#cb58-3" aria-hidden="true" tabindex="-1"></a>m2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = description.length ~ ., data = datatrain)
+
+Coefficients:
+         (Intercept)           profile.pic  nums.length.username  
+           1.453e+01             1.009e+01            -1.070e+01  
+      fullname.words  nums.length.fullname        name..username  
+           3.590e+00             2.650e+00             1.589e+00  
+        external.URL               private               X.posts  
+           3.876e+01            -5.271e+00             6.079e-04  
+         X.followers             X.follows                  fake  
+          -1.681e-06             3.687e-03            -1.386e+01  </code></pre>
+</div>
+</div>
+<ul>
+<li>foto.perfil (10,09): Tener una foto de perfil se asocia con un aumento de aproximadamente 10,09 unidades en la longitud de la descripción.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> datatrain<span class="sc">$</span>private, <span class="at">y =</span> description.length)) <span class="sc">+</span></span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb60-3"><a href="#cb60-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb60-4"><a href="#cb60-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión description.length ~ private"</span>,</span>
+<span id="cb60-5"><a href="#cb60-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"private"</span>,</span>
+<span id="cb60-6"><a href="#cb60-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"description.length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Use of `datatrain$private` is discouraged.
+ℹ Use `private` instead.
+Use of `datatrain$private` is discouraged.
+ℹ Use `private` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>nums.length.username (-10,70): Un aumento en la longitud de los caracteres numéricos del nombre de usuario se asocia con una disminución de aproximadamente 10,70 unidades en la longitud de la descripción.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb63"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb63-1"><a href="#cb63-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> datatrain<span class="sc">$</span>nums.length.username, <span class="at">y =</span> description.length)) <span class="sc">+</span></span>
+<span id="cb63-2"><a href="#cb63-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb63-3"><a href="#cb63-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb63-4"><a href="#cb63-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión description.length ~ nums.length.username"</span>,</span>
+<span id="cb63-5"><a href="#cb63-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"nums.length.username"</span>,</span>
+<span id="cb63-6"><a href="#cb63-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"description.length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Use of `datatrain$nums.length.username` is discouraged.
+ℹ Use `nums.length.username` instead.
+Use of `datatrain$nums.length.username` is discouraged.
+ℹ Use `nums.length.username` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>URL.externa (38,76): Tener una URL externa se asocia con un aumento sustancial de aproximadamente 38,76 unidades en description.length.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> datatrain<span class="sc">$</span>external.URL, <span class="at">y =</span> description.length)) <span class="sc">+</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión fake ~ external.URL"</span>,</span>
+<span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"external.URL"</span>,</span>
+<span id="cb66-6"><a href="#cb66-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"description.length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Use of `datatrain$external.URL` is discouraged.
+ℹ Use `external.URL` instead.
+Use of `datatrain$external.URL` is discouraged.
+ℹ Use `external.URL` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>private (-5,27): Tener una cuenta privada se asocia con una disminución de aproximadamente 5,27 unidades en description.length.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> datatrain<span class="sc">$</span>private, <span class="at">y =</span> description.length)) <span class="sc">+</span></span>
+<span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión description.length ~ private"</span>,</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"private"</span>,</span>
+<span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"description.length"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Use of `datatrain$private` is discouraged.
+ℹ Use `private` instead.
+Use of `datatrain$private` is discouraged.
+ℹ Use `private` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>-falsa (-13,86): Ser una cuenta falsa se asocia con una disminución de aproximadamente 13,86 unidades en la longitud de la descripción.</p>
+<p>Este modelo de regresión lineal intenta explicar la variación en la longitud de la descripción en función de varias características de los perfiles de usuario. Los coeficientes positivos significativos (como URL.externa y foto.perfil) sugieren que ciertos atributos están asociados a descripciones más largas, mientras que los coeficientes negativos significativos (como falso y ums.length.username) sugieren descripciones más cortas.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(description.length <span class="sc">~</span> nums.length.username,</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = description.length ~ nums.length.username, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-31.903 -25.060 -10.234   9.991 130.758 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)            31.903      1.884   16.94  &lt; 2e-16 ***
+nums.length.username  -57.025      7.049   -8.09 3.58e-15 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 35.78 on 572 degrees of freedom
+Multiple R-squared:  0.1027,    Adjusted R-squared:  0.1011 
+F-statistic: 65.45 on 1 and 572 DF,  p-value: 3.583e-15</code></pre>
+</div>
+</div>
+<p>La longitud del nombre de usuario es un predictor significativo de la longitud de la descripción, y los nombres de usuario más largos se asocian a descripciones más cortas. Sin embargo, el modelo sólo explica una pequeña parte de la variabilidad en la longitud de las descripciones, lo que sugiere que otros factores también pueden desempeñar un papel importante a la hora de determinar la longitud de la descripción.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(description.length <span class="sc">~</span> nums.length.username<span class="sc">+</span>profile.pic,</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = description.length ~ nums.length.username + profile.pic, 
+    data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-35.923 -24.111  -6.750   9.297 118.132 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)            12.117      3.334   3.634 0.000304 ***
+nums.length.username  -37.900      7.287  -5.201 2.77e-07 ***
+profile.pic            23.806      3.371   7.063 4.77e-12 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 34.35 on 571 degrees of freedom
+Multiple R-squared:  0.1748,    Adjusted R-squared:  0.1719 
+F-statistic: 60.46 on 2 and 571 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Tanto la longitud del nombre de usuario como la presencia de una foto de perfil son predictores significativos de la longitud de la descripción. La presencia de una foto de perfil se asocia a una descripción más larga, mientras que un nombre de usuario más largo se asocia a una descripción más corta. El modelo explica una mayor parte de la variabilidad en la longitud de las descripciones en comparación con el modelo anterior, pero sigue habiendo una cantidad significativa de variabilidad no explicada.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(description.length <span class="sc">~</span> nums.length.username<span class="sc">+</span>profile.pic<span class="sc">+</span><span class="fu">I</span>(external.URL<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = description.length ~ nums.length.username + profile.pic + 
+    I(external.URL^2), data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-73.318 -19.863  -4.933   6.845 123.297 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)             8.649      3.049   2.837  0.00472 ** 
+nums.length.username  -25.655      6.721  -3.817  0.00015 ***
+profile.pic            18.159      3.108   5.842 8.67e-09 ***
+I(external.URL^2)      46.510      4.239  10.972  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 31.24 on 570 degrees of freedom
+Multiple R-squared:  0.3187,    Adjusted R-squared:  0.3151 
+F-statistic: 88.86 on 3 and 570 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>La longitud del nombre de usuario, la presencia de una foto de perfil y el cuadrado del número de URL externas son predictores significativos de la longitud de la descripción. La presencia de una foto de perfil y el cuadrado del número de URL externas se asocian a descripciones más largas, mientras que un nombre de usuario más largo se asocia a descripciones más cortas. La inclusión del cuadrado del número de URL externas mejora notablemente la capacidad explicativa del modelo, como demuestra el aumento del valor R-cuadrado.</p>
+<section id="conclusions" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="conclusions"><span class="header-section-number">5.3.1</span> Conclusions</h3>
+<p>Los análisis muestran que la longitud del nombre de usuario, la presencia de una foto de perfil y el número de URL externas (en particular, su cuadrado) tienen un impacto significativo en la longitud de la descripción. El modelo final con tres variables (nums.length.username, profile.pic, I(external.URL^2)) es el más eficaz, ya que explica más del 31% de la variación en la longitud de las descripciones. Los nombres de usuario más largos se asocian a descripciones más cortas, tener una foto de perfil se asocia a descripciones más largas, y el número de URL externas (en cuadratura) aumenta significativamente la longitud de la descripción.</p>
+</section>
+</section>
+<section id="x.posts-depende-de-x.followers" class="level2" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="x.posts-depende-de-x.followers"><span class="header-section-number">5.4</span> X.posts depende de X.followers</h2>
+<p><strong>Segimos investigar</strong>,vamos a variable X.posts depende de X.followers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(X.posts <span class="sc">~</span> X.followers,</span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb78-3"><a href="#cb78-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = X.posts ~ X.followers, data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2124.9   -95.3   -86.3   -18.4  7167.2 
+
+Coefficients:
+             Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 9.533e+01  1.600e+01   5.958 4.47e-09 ***
+X.followers 1.420e-04  1.749e-05   8.118 2.91e-15 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 381.6 on 572 degrees of freedom
+Multiple R-squared:  0.1033,    Adjusted R-squared:  0.1018 
+F-statistic: 65.91 on 1 and 572 DF,  p-value: 2.911e-15</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(datatrain, <span class="fu">aes</span>(<span class="at">x =</span> datatrain<span class="sc">$</span>X.posts, <span class="at">y =</span> X.followers)) <span class="sc">+</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>) <span class="sc">+</span></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Regressión X.followers ~ X.posts"</span>,</span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"nums.length.username"</span>,</span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"X.posts"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Use of `datatrain$X.posts` is discouraged.
+ℹ Use `X.posts` instead.
+Use of `datatrain$X.posts` is discouraged.
+ℹ Use `X.posts` instead.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="reg_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Nuestro modelo explica solo 10 % de casos. Tenemos que mejorarlo. Este modelo pretende predecir el número de publicaciones (X.publicaciones) a partir del número de seguidores (X.seguidores), el número de personas a las que sigue el usuario (X.seguidores) y el cuadrado de la variable de falsificación (I(falsificación^2)).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(X.posts <span class="sc">~</span> X.followers<span class="sc">+</span>X.follows<span class="sc">+</span><span class="fu">I</span>(fake<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = X.posts ~ X.followers + X.follows + I(fake^2), data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2071.3  -113.5    -3.7    -0.6  7103.8 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  1.657e+02  2.541e+01   6.520 1.55e-10 ***
+X.followers  1.338e-04  1.711e-05   7.818 2.61e-14 ***
+X.follows    2.436e-02  1.734e-02   1.405    0.161    
+I(fake^2)   -1.641e+02  3.199e+01  -5.131 3.97e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 371.6 on 570 degrees of freedom
+Multiple R-squared:  0.1528,    Adjusted R-squared:  0.1483 
+F-statistic: 34.26 on 3 and 570 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>El modelo sugiere que mientras X.followers e I(fake^2) influyen significativamente en X.posts, X.follows no parece ser un predictor significativo en este caso. El valor R-cuadrado relativamente bajo indica que hay otros factores no incluidos en este modelo que explican una mayor parte de la varianza en X.posts.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb85"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb85-1"><a href="#cb85-1" aria-hidden="true" tabindex="-1"></a>lm_model1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(X.posts <span class="sc">~</span> X.followers<span class="sc">+</span><span class="fu">I</span>(fake<span class="sc">^</span><span class="dv">2</span>),</span>
+<span id="cb85-2"><a href="#cb85-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">data =</span> datatrain)</span>
+<span id="cb85-3"><a href="#cb85-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(lm_model1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = X.posts ~ X.followers + I(fake^2), data = datatrain)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-2075.1  -114.4    -9.0    -4.0  7087.3 
+
+Coefficients:
+              Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)  1.832e+02  2.215e+01   8.273 9.26e-16 ***
+X.followers  1.330e-04  1.712e-05   7.769 3.69e-14 ***
+I(fake^2)   -1.743e+02  3.119e+01  -5.588 3.55e-08 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 371.9 on 571 degrees of freedom
+Multiple R-squared:  0.1498,    Adjusted R-squared:  0.1468 
+F-statistic: 50.31 on 2 and 571 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p><strong>Interpretación</strong></p>
+<p>El modelo sugiere que tanto X.followers como I(fake^2) influyen significativamente en X.posts. El valor R-cuadrado relativamente bajo indica que hay otros factores no incluidos en este modelo que explican una mayor parte de la varianza en X.posts.</p>
+<section id="conclusions-1" class="level3" data-number="5.4.1">
+<h3 data-number="5.4.1" class="anchored" data-anchor-id="conclusions-1"><span class="header-section-number">5.4.1</span> Conclusions</h3>
+<p>La eliminación de X.follows no alteró significativamente el valor R-cuadrado, lo que indica que X.follows no era un predictor sustancial en el modelo original. El R-cuadrado ajustado y el error estándar residual son casi idénticos a los del modelo anterior, lo que sugiere una ligera mejora en la simplicidad del modelo sin perder poder explicativo.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./fcar.html" class="pagination-link">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">fcaR</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./ts.html" class="pagination-link">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Time series</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+</body></html>

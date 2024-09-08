@@ -1,0 +1,206 @@
+---
+title: "Apriori-Reglas"
+---
+
+```{r}
+library(arules)
+library(arulesViz)
+```
+
+Ahora vamos a utilizar un algoritmo de aprendizaje automático llamado Apriori en el paquete arules para crear algunas reglas de asociación.
+
+Antes de empezar, vamos a desarrollar la idea del aprendizaje de reglas de asociación. En su forma más simple, el aprendizaje de reglas de asociación intenta predecir las cuentas falsas.
+
+El algoritmo Apriori tiene como objetivo maximizar la probabilidad de que alguien tenga una cuenta falsa, sea cada vez más popular, envíe spam o tenga una descripción curiosa, teniendo en cuenta sus acciones anteriores.
+
+# Data processing
+
+El paquete arules se desarrolló específicamente para la minería de reglas de asociación y conjuntos de elementos frecuentes. Para comenzar nuestro análisis, debemos recuperar los datos necesarios del conjunto de datos original y, a continuación, aplicar el formato correcto.
+Cambiamos todas las variables a las variables categoricas.
+
+```{r}
+data_reglas<-read.csv("dataAeda.csv")
+
+breaks <- c(-Inf, 100, 500, 1000, 5000, Inf)
+labels <- c("Very Low", "Low", "Medium", "High", "Very High")
+data_reglas$X.follows <- cut(data_reglas$X.follows, breaks = breaks, include.lowest = TRUE, labels = labels)
+data_reglas$X.followers <- cut(data_reglas$X.followers, breaks = breaks, include.lowest = TRUE, labels = labels)
+
+breaks <- c(-Inf, mean(data_reglas$fullname.words), Inf)
+labels <- c("Low", "High")
+data_reglas$fullname.words <- cut(data_reglas$fullname.words, breaks = breaks, include.lowest = TRUE, labels = labels)
+breaks <- c(-Inf, mean(data_reglas$X.posts), Inf)
+data_reglas$X.posts <- cut(data_reglas$X.posts, breaks = breaks, include.lowest = TRUE, labels = labels)
+
+data_reglas$nums.length.username <- cut(data_reglas$nums.length.username, breaks = seq(0, 1, by = 0.25), labels = c("Very Short","Short", "Long", "Very Long"), include.lowest = TRUE)
+data_reglas$nums.length.fullname <- cut(data_reglas$nums.length.fullname, breaks = seq(0, 1, by = 0.25), labels = c("Very Short","Short", "Long", "Very Long"), include.lowest = TRUE)
+data_reglas$description.length <- cut(data_reglas$description.length, breaks = seq(0, 150, by = 30), labels = c("Very Short","Short","Medium", "Long", "Very Long"), include.lowest = TRUE)
+
+data_reglas$fake <- factor(data_reglas$fake, levels = c(0, 1), labels = c("Real Accounts", "Fake Accounts"))
+data_reglas$private <- factor(data_reglas$private, levels = c(0, 1), labels = c("Non-private Accounts", "Privates Accounts"))
+data_reglas$profile.pic <- factor(data_reglas$profile.pic, levels = c(0, 1), labels = c("No profile Pic", "Has profile pic"))
+data_reglas$name..username <- factor(data_reglas$name..username, levels = c(0, 1), labels = c("No user name", "Has username"))
+data_reglas$external.URL <- factor(data_reglas$external.URL, levels = c(0, 1), labels = c("No URL", "Has URL"))
+
+```
+
+# Exploración
+## Reglas
+Aqui generamos reglas
+```{r}
+reglas <- apriori(data_reglas, parameter = list(supp = 0.3, conf = 0.2, minlen = 3, target = "rules"))
+```
+
+Tenemos 1519 reglas.
+```{r}
+length(reglas)
+```
+
+```{r}
+summary(reglas)
+```
+Quieremos ver reglas
+
+```{r}
+inspect(tail(reglas))
+```
+```{r}
+inspect(head(reglas))
+```
+
+```{r}
+reglas[1240:1250]@quality
+```
+
+```{r}
+plot(reglas)
+```
+
+Eliminamos **redundancia**
+
+```{r}
+idxNoRed <- which(!is.redundant(reglas))
+reglas <- reglas[idxNoRed]
+reglas
+```
+Tuvimos mas que 1000 reglas redundantes.
+
+Quieremos elimanr tambien reglas duplicados
+```{r}
+elems <- which(!duplicated(reglas))
+reglas <- reglas[elems]
+reglas
+```
+no tuvimos reglas duplicated.
+
+Queremos tener solo reglas significant
+```{r}
+elems <- which(is.significant(reglas))
+reglas <- reglas[elems]
+reglas
+```
+Obtenemos nuestro set de solo 318 reglas.
+```{r}
+plot(reglas)
+```
+Muy pocas normas tienen una elevación superior a 1.5
+Hay una regla que tiene supporte aproxinamente 0.8. Vamos a envestigar su index.
+```{r}
+max(reglas@quality$support)
+ind<-which(reglas@quality$support==max(reglas@quality$support))
+ind
+```
+Vamos a encontrar la regla con minimo confidence
+```{r}
+min(reglas@quality$confidence)
+ind<-which(reglas@quality$confidence==min(reglas@quality$confidence))
+ind
+```
+Tambien quieremos encontrar las reglas con el lift>2
+```{r}
+rules_lift <- subset(reglas, lift>2)
+inspect(head(rules_lift))
+```
+
+
+## Items
+Aqui generamos items
+```{r}
+reglasitems <- apriori(data_reglas, parameter = list(supp = 0.3, conf = 0.2, minlen = 3, target = "frequent itemsets"))
+```
+
+```{r}
+summary(reglasitems)
+```
+Tenemos mas que 380 items. Los mas frequentes 10 items son: 
+```{r}
+itemset_frequencies <- itemFrequency(items(reglasitems))
+
+# Sort the item frequencies by descending order
+itemset_frequencies <- sort(itemset_frequencies, decreasing = TRUE)
+
+# Select the top 10 most frequent items
+ head(itemset_frequencies, 10)
+ 
+```
+```{r}
+inspect(tail(reglasitems))
+```
+
+
+# ¿Qué hace que una cuenta sea falsa?
+```{r}
+rules_fake <- subset(reglas, subset = rhs %in% c("fake=Fake Accounts"), lift>2)
+inspect(rules_fake)
+```
+```{r}
+sorted_fake<-sort(rules_fake,by="support")
+inspect(sorted_fake)
+```
+```{r}
+rules_filtered <- subset(reglas, lhs %pin% c("X.followers") & rhs %in% c("fake=Fake Accounts"))
+
+inspect(rules_filtered)
+```
+Fake acoounts siempre tienen numero de followers = "very low", description very short, no url y a  veces no user name. 
+
+# ¿De qué depende la longitud de la descripción?
+Fałszywe lub spamujące konta mogą mieć tendencję do posiadania niewyraźnych lub niestandardowych opisów profilu, w przeciwieństwie do autentycznych kont, które mogą zawierać bardziej szczegółowe i osobiste informacje.
+```{r}
+reglas_longitud <- subset(reglas, subset = rhs %pin% c("description.length"),lift>1.5)
+inspect(reglas_longitud)
+```
+```{r}
+length(reglas_longitud)
+```
+podemos ver todas las reglas.
+Longitud the descripcion en las todas es Very Short. Basado en algoritmo apriori podemos decir que cuntas
+- sin external URL 
+- con numero de post Low
+- numero de followers - X.followers=Very Low
+- a veces Fake Accounts
+-sin name..username
+- nums.length.fullname=Very Short 
+Tienen **VERY SHORT** descripciones.
+
+
+#Que influye que no tenemos mucho followers
+
+```{r}
+reglas_folllowers <- subset(reglas, subset = rhs %in% c("X.followers=Very High"))
+inspect(reglas_folllowers)
+```
+
+```{r}
+length(reglas_folllowers)
+```
+No hay reglas generdas con "Very High" numero de followers.
+Vamos a ver si hay reglas a la derecha que estimaron numero de followers:
+```{r}
+reglas_folllowers <- subset(reglas, subset = rhs %pin% c("X.followers"))
+inspect(reglas_folllowers)
+```
+Solo las reglas nos dicenque influye que numero de followers es Very low 
+-description.length Very Short,                                                         - sin external.URL
+- con minimo numero de posts
+- fake accounts
